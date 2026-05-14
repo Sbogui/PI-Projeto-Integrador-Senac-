@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -7,59 +7,210 @@ from database import Base
 class Professor(Base):
     __tablename__ = "professores"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     nome = Column(String(120), nullable=False)
-    email = Column(String(120), unique=True, nullable=True)
-
-    turmas = relationship("Turma", back_populates="professor")
-
-    def to_dict(self):
-        return {"id": self.id, "nome": self.nome, "email": self.email}
-
-    def __repr__(self):
-        return f"<Professor {self.id} {self.nome!r}>"
-
-
-class Turma(Base):
-    __tablename__ = "turmas"
-
-    id = Column(Integer, primary_key=True)
-    nome = Column(String(120), nullable=False)
-    codigo = Column(String(40), unique=True, nullable=False)
-    professor_id = Column(Integer, ForeignKey("professores.id"), nullable=False)
-
-    professor = relationship("Professor", back_populates="turmas")
-    alunos = relationship("Aluno", back_populates="turma")
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "nome": self.nome,
-            "codigo": self.codigo,
-            "professor_id": self.professor_id,
-        }
-
-    def __repr__(self):
-        return f"<Turma {self.id} {self.codigo!r}>"
-
-
-class Aluno(Base):
-    __tablename__ = "alunos"
-
-    id = Column(Integer, primary_key=True)
-    nome = Column(String(120), nullable=False)
-    email = Column(String(120), unique=True, nullable=True)
-    turma_id = Column(Integer, ForeignKey("turmas.id"), nullable=False)
-
-    turma = relationship("Turma", back_populates="alunos")
+    email = Column(String(120), unique=True)
+    disciplina = Column(String(100))
 
     def to_dict(self):
         return {
             "id": self.id,
             "nome": self.nome,
             "email": self.email,
-            "turma_id": self.turma_id,
+            "disciplina": self.disciplina,
         }
 
-    def __repr__(self):
-        return f"<Aluno {self.id} {self.nome!r}>"
+
+class Aluno(Base):
+    __tablename__ = "alunos"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nome = Column(String(120), nullable=False)
+    email = Column(String(120), unique=True)
+    data_nascimento = Column(String(10))
+    telefone = Column(String(15))
+    curso_id = Column(Integer, ForeignKey("cursos.id_curso",ondelete="CASCADE"))
+
+    curso = relationship("Curso", back_populates="alunos"
+    )
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "nome": self.nome,
+            "email": self.email,
+            "data_nascimento": self.data_nascimento,
+            "telefone": self.telefone,
+            "curso_id": self.curso_id,
+        }
+
+
+class Curso(Base):
+    __tablename__ = "cursos"
+
+    id_curso = Column(Integer, primary_key=True, autoincrement=True)
+    nome_curso = Column(String(100))
+    carga_horaria = Column(Integer)
+    alunos = relationship( "Aluno", back_populates="curso")
+
+    disciplinas = relationship("Disciplina", back_populates="curso")
+    
+    def to_dict(self):
+        return {
+            "id_curso": self.id_curso,
+            "nome_curso": self.nome_curso,
+            "carga_horaria": self.carga_horaria,
+        }
+
+
+class Disciplina(Base):
+    __tablename__ = "disciplinas"
+
+    id_disciplina = Column(Integer, primary_key=True, autoincrement=True)
+    nome_disciplina = Column(String(40))
+    carga_horaria = Column(Integer)
+    id_curso = Column(Integer, ForeignKey("cursos.id_curso",ondelete="CASCADE"))
+
+    id_professor = Column(Integer, ForeignKey("professores.id",ondelete="CASCADE"))
+
+    curso = relationship("Curso",back_populates="disciplinas")
+
+    def to_dict(self):
+        return {
+            "id_disciplina": self.id_disciplina,
+            "nome_disciplina": self.nome_disciplina,
+            "carga_horaria": self.carga_horaria,
+            "id_curso": self.id_curso,
+            "id_professor": self.id_professor,
+        }
+
+
+class Email(Base):
+    __tablename__ = "email"
+
+    id_email = Column(Integer, primary_key=True, autoincrement=True)
+    email_pessoal = Column(String(50), nullable=False)
+    email_profissional = Column(String(50), nullable=False)
+
+    id_aluno = Column(Integer, ForeignKey("alunos.id",ondelete="CASCADE"))
+    id_professor = Column(Integer, ForeignKey("professores.id",ondelete="CASCADE"))
+
+    def to_dict(self):
+        return {
+            "id_email": self.id_email,
+            "email_pessoal": self.email_pessoal,
+            "email_profissional": self.email_profissional,
+            "id_aluno": self.id_aluno,
+            "id_professor": self.id_professor,
+        }
+
+
+class Endereco(Base):
+    __tablename__ = "endereco"
+
+    id_endereco = Column(Integer, primary_key=True, autoincrement=True)
+    rua = Column(String(100))
+    numero = Column(String(10))
+    bairro = Column(String(50))
+    cidade = Column(String(50))
+    cep = Column(String(10))
+    estado = Column(String(2))
+    complemento = Column(String(50))
+
+    id_aluno = Column(Integer, ForeignKey("alunos.id",ondelete="CASCADE"))
+    id_professor = Column(Integer, ForeignKey("professores.id",ondelete="CASCADE"))
+
+    def to_dict(self):
+        return {
+            "id_endereco": self.id_endereco,
+            "rua": self.rua,
+            "numero": self.numero,
+            "bairro": self.bairro,
+            "cidade": self.cidade,
+            "cep": self.cep,
+            "estado": self.estado,
+            "complemento": self.complemento,
+            "id_aluno": self.id_aluno,
+            "id_professor": self.id_professor,
+        }
+
+
+class Matricula(Base):
+    __tablename__ = "matricula"
+
+    id_matricula = Column(Integer, primary_key=True, autoincrement=True)
+    data_matricula = Column(String(10))
+    situacao = Column(String(20))
+
+    id_aluno = Column(Integer, ForeignKey("alunos.id",ondelete="CASCADE"))
+    id_curso = Column(Integer, ForeignKey("cursos.id_curso",ondelete="CASCADE"))
+
+    def to_dict(self):
+        return {
+            "id_matricula": self.id_matricula,
+            "data_matricula": self.data_matricula,
+            "situacao": self.situacao,
+            "id_aluno": self.id_aluno,
+            "id_curso": self.id_curso,
+        }
+
+
+class Nota(Base):
+    __tablename__ = "notas"
+
+    id_nota = Column(Integer, primary_key=True, autoincrement=True)
+    nota = Column(Integer)
+    tipo_avaliacao = Column(String(50))
+
+    id_aluno = Column(Integer, ForeignKey("alunos.id",ondelete="CASCADE"))
+    id_disciplina = Column(Integer, ForeignKey("disciplinas.id_disciplina",ondelete="CASCADE"))
+
+    def to_dict(self):
+        return {
+            "id_nota": self.id_nota,
+            "nota": self.nota,
+            "tipo_avaliacao": self.tipo_avaliacao,
+            "id_aluno": self.id_aluno,
+            "id_disciplina": self.id_disciplina,
+        }
+
+
+class Presenca(Base):
+    __tablename__ = "presenca"
+
+    id_presenca = Column(Integer, primary_key=True, autoincrement=True)
+    data_aula = Column(String(12))
+    presente = Column(String(1))
+
+    id_matricula = Column(Integer, ForeignKey("matricula.id_matricula",ondelete="CASCADE"))
+    id_aluno = Column(Integer, ForeignKey("alunos.id",ondelete="CASCADE"))
+    id_disciplina = Column(Integer, ForeignKey("disciplinas.id_disciplina",ondelete="CASCADE"))
+
+    def to_dict(self):
+        return {
+            "id_presenca": self.id_presenca,
+            "data_aula": self.data_aula,
+            "presente": self.presente,
+            "id_matricula": self.id_matricula,
+            "id_aluno": self.id_aluno,
+            "id_disciplina": self.id_disciplina,
+        }
+
+
+class Telefone(Base):
+    __tablename__ = "telefone"
+
+    id_telefone = Column(Integer, primary_key=True, autoincrement=True)
+    numero_pessoal = Column(String(15))
+    numero_profissional = Column(String(15))
+
+    id_aluno = Column(Integer, ForeignKey("alunos.id",ondelete="CASCADE"))
+    id_professor = Column(Integer, ForeignKey("professores.id",ondelete="CASCADE"))
+
+    def to_dict(self):
+        return {
+            "id_telefone": self.id_telefone,
+            "numero_pessoal": self.numero_pessoal,
+            "numero_profissional": self.numero_profissional,
+            "id_aluno": self.id_aluno,
+            "id_professor": self.id_professor,
+        }
