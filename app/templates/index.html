@@ -3,46 +3,170 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Escola - Painel</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+
+  <title>Sistema Escolar</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='styles.css') }}"
+  />
 </head>
+
 <body>
+
   <header class="topo">
-    <h1>Escola</h1>
-    <p class="subtitulo">Consumindo a API <code>/api/...</code></p>
+    <h1>Sistema Escolar</h1>
+
+    <p class="subtitulo">
+      Consumindo API Flask + SQLAlchemy
+    </p>
   </header>
 
+  <!-- ===================================== -->
+  <!-- ABAS -->
+  <!-- ===================================== -->
+
   <nav class="abas">
-    <button class="aba ativa" data-tipo="professores">Professores</button>
-    <button class="aba" data-tipo="turmas">Turmas</button>
-    <button class="aba" data-tipo="alunos">Alunos</button>
+
+    <button class="aba ativa" data-tipo="professores">
+      Professores
+    </button>
+
+    <button class="aba" data-tipo="alunos">
+      Alunos
+    </button>
+
+    <button class="aba" data-tipo="cursos">
+      Cursos
+    </button>
+
+    <button class="aba" data-tipo="disciplinas">
+      Disciplinas
+    </button>
+
+    <button class="aba" data-tipo="matriculas">
+      Matrículas
+    </button>
+
+    <button class="aba" data-tipo="notas">
+      Notas
+    </button>
+
+    <button class="aba" data-tipo="presencas">
+      Presenças
+    </button>
+
+    <button class="aba" data-tipo="telefones">
+      Telefones
+    </button>
+
+    <button class="aba" data-tipo="emails">
+      Emails
+    </button>
+
+    <button class="aba" data-tipo="enderecos">
+      Endereços
+    </button>
+
   </nav>
 
+  <!-- ===================================== -->
+  <!-- CONTEÚDO -->
+  <!-- ===================================== -->
+
   <main class="conteudo">
+
+    <!-- FORMULÁRIO -->
     <section id="painel-formulario">
-      <h2 id="titulo-formulario">Novo professor</h2>
+
+      <h2 id="titulo-formulario">
+        Novo Registro
+      </h2>
+
       <form id="formulario" novalidate>
-        <div id="campos" class="grade-campos"></div>
-        <div class="acoes-formulario">
-          <button type="submit" class="botao-primario">Cadastrar</button>
-          <span id="mensagem-formulario" class="mensagem"></span>
+
+        <div
+          id="campos"
+          class="grade-campos">
         </div>
+
+        <div class="acoes-formulario">
+
+          <button
+            type="submit"
+            class="botao-primario">
+
+            Cadastrar
+
+          </button>
+
+          <span
+            id="mensagem-formulario"
+            class="mensagem">
+          </span>
+
+        </div>
+
       </form>
+
     </section>
 
+    <!-- TABELA -->
     <section id="painel-tabela">
+
       <div class="cabecalho-painel">
-        <h2 id="titulo-lista">Professores</h2>
-        <button id="botao-recarregar" type="button">Recarregar</button>
+
+        <h2 id="titulo-lista">
+          Lista
+        </h2>
+
+        <button
+          id="botao-recarregar"
+          type="button">
+
+          Recarregar
+
+        </button>
+
       </div>
+
       <div id="status" class="status"></div>
-      <table id="tabela">
-        <thead><tr id="cabecalho"></tr></thead>
-        <tbody id="corpo"></tbody>
-      </table>
+
+      <div class="tabela-container">
+
+        <table id="tabela">
+
+          <thead>
+            <tr id="cabecalho"></tr>
+          </thead>
+
+          <tbody id="corpo"></tbody>
+
+        </table>
+
+      </div>
+
     </section>
+
   </main>
 
-  <script src="{{ url_for('static', filename='app.js') }}"></script>
+  <!-- ===================================== -->
+  <!-- RODAPÉ -->
+  <!-- ===================================== -->
+
+  <footer class="rodape">
+    <p>
+      Projeto Acadêmico - Flask + SQLAlchemy + SQLite
+    </p>
+  </footer>
+
+  <!-- ===================================== -->
+  <!-- JS -->
+  <!-- ===================================== -->
+
+  <script
+    src="{{ url_for('static', filename='app.js') }}">
+  </script>
+
 </body>
 </html>
