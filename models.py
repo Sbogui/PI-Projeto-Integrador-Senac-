@@ -8,7 +8,7 @@ class Professor(Base):
     __tablename__ = "professores"
     __table_args__ = {"sqlite_autoincrement": True}
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     nome = Column(String(120), nullable=False)
     email = Column(String(120), unique=True)
     disciplina = Column(String(100))
@@ -24,9 +24,14 @@ class Professor(Base):
 
 class Aluno(Base):
     __tablename__ = "alunos"
+<<<<<<< HEAD
     __table_args__ = {"sqlite_autoincrement": True}
 
     id = Column(Integer, primary_key=True)
+=======
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+>>>>>>> f05077a3c7caae9d4c3633e6568fe1b18ea83cff
     nome = Column(String(120), nullable=False)
     email = Column(String(120), unique=True)
     data_nascimento = Column(String(10))
@@ -48,9 +53,14 @@ class Aluno(Base):
 
 class Curso(Base):
     __tablename__ = "cursos"
+<<<<<<< HEAD
     __table_args__ = {"sqlite_autoincrement": True}
 
     id_curso = Column(Integer, primary_key=True)
+=======
+
+    id_curso = Column(Integer, primary_key=True, autoincrement=True)
+>>>>>>> f05077a3c7caae9d4c3633e6568fe1b18ea83cff
     nome_curso = Column(String(100))
     carga_horaria = Column(Integer)
     alunos = relationship( "Aluno", back_populates="curso")
@@ -67,9 +77,14 @@ class Curso(Base):
 
 class Disciplina(Base):
     __tablename__ = "disciplinas"
+<<<<<<< HEAD
     __table_args__ = {"sqlite_autoincrement": True}
 
     id_disciplina = Column(Integer, primary_key=True)
+=======
+
+    id_disciplina = Column(Integer, primary_key=True, autoincrement=True)
+>>>>>>> f05077a3c7caae9d4c3633e6568fe1b18ea83cff
     nome_disciplina = Column(String(40))
     carga_horaria = Column(Integer)
     id_curso = Column(Integer, ForeignKey("cursos.id_curso",ondelete="CASCADE"))
@@ -90,9 +105,14 @@ class Disciplina(Base):
 
 class Email(Base):
     __tablename__ = "email"
+<<<<<<< HEAD
     __table_args__ = {"sqlite_autoincrement": True}
 
     id_email = Column(Integer, primary_key=True)
+=======
+
+    id_email = Column(Integer, primary_key=True, autoincrement=True)
+>>>>>>> f05077a3c7caae9d4c3633e6568fe1b18ea83cff
     email_pessoal = Column(String(50), nullable=False)
     email_profissional = Column(String(50), nullable=False)
 
@@ -111,9 +131,14 @@ class Email(Base):
 
 class Endereco(Base):
     __tablename__ = "endereco"
+<<<<<<< HEAD
     __table_args__ = {"sqlite_autoincrement": True}
 
     id_endereco = Column(Integer, primary_key=True)
+=======
+
+    id_endereco = Column(Integer, primary_key=True, autoincrement=True)
+>>>>>>> f05077a3c7caae9d4c3633e6568fe1b18ea83cff
     rua = Column(String(100))
     numero = Column(String(10))
     bairro = Column(String(50))
@@ -142,9 +167,14 @@ class Endereco(Base):
 
 class Matricula(Base):
     __tablename__ = "matricula"
+<<<<<<< HEAD
     __table_args__ = {"sqlite_autoincrement": True}
 
     id_matricula = Column(Integer, primary_key=True )
+=======
+
+    id_matricula = Column(Integer, primary_key=True, autoincrement=True)
+>>>>>>> f05077a3c7caae9d4c3633e6568fe1b18ea83cff
     data_matricula = Column(String(10))
     situacao = Column(String(20))
 
@@ -163,9 +193,14 @@ class Matricula(Base):
 
 class Nota(Base):
     __tablename__ = "notas"
+<<<<<<< HEAD
     __table_args__ = {"sqlite_autoincrement": True}
 
     id_nota = Column(Integer, primary_key=True)
+=======
+
+    id_nota = Column(Integer, primary_key=True, autoincrement=True)
+>>>>>>> f05077a3c7caae9d4c3633e6568fe1b18ea83cff
     nota = Column(Integer)
     tipo_avaliacao = Column(String(50))
 
@@ -184,9 +219,14 @@ class Nota(Base):
 
 class Presenca(Base):
     __tablename__ = "presenca"
+<<<<<<< HEAD
     __table_args__ = {"sqlite_autoincrement": True}
 
     id_presenca = Column(Integer, primary_key=True )
+=======
+
+    id_presenca = Column(Integer, primary_key=True, autoincrement=True)
+>>>>>>> f05077a3c7caae9d4c3633e6568fe1b18ea83cff
     data_aula = Column(String(12))
     presente = Column(String(1))
 
@@ -207,9 +247,14 @@ class Presenca(Base):
 
 class Telefone(Base):
     __tablename__ = "telefone"
+<<<<<<< HEAD
     __table_args__ = {"sqlite_autoincrement": True}
 
     id_telefone = Column(Integer, primary_key=True)
+=======
+
+    id_telefone = Column(Integer, primary_key=True, autoincrement=True)
+>>>>>>> f05077a3c7caae9d4c3633e6568fe1b18ea83cff
     numero_pessoal = Column(String(15))
     numero_profissional = Column(String(15))
 

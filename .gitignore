@@ -1,9 +1,21 @@
+# Ambiente virtual
 .venv/
 venv/
+
+# Cache Python
 __pycache__/
-*.py[cod]
-*$py.class
-.Python
-*.so
-.env
-instance/*.db
+*.pyc
+
+# Banco SQLite
+*.db
+*.sqlite3
+
+# VSCode
+.vscode/
+
+# Windows
+Thumbs.db
+.DS_Store
+
+# Arquivos temporários
+instance/
