@@ -1,6 +1,8 @@
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from database import SessionLocal
+
 import re
 from datetime import datetime
 
@@ -17,14 +19,17 @@ from models import (
     Endereco,
 )
 
+# ==================================================
+# LISTAGENS
+# ==================================================
 
 def listar_generico(modelo, campo):
     session = SessionLocal()
 
     try:
-        linhas = session.scalars(
-            select(modelo).order_by(campo)
-        ).all()
+        query = select(modelo).order_by(campo)
+
+        linhas = session.scalars(query).unique().all()
 
         return [x.to_dict() for x in linhas]
 
@@ -32,20 +37,25 @@ def listar_generico(modelo, campo):
         session.close()
 
 
-# ==================================================
-# LISTAGENS
-# ==================================================
-
 def listar_professores():
-    return listar_generico(Professor, Professor.nome)
+    return listar_generico(
+        Professor,
+        Professor.nome
+    )
 
 
 def listar_alunos():
-    return listar_generico(Aluno, Aluno.nome)
+    return listar_generico(
+        Aluno,
+        Aluno.nome
+    )
 
 
 def listar_cursos():
-    return listar_generico(Curso, Curso.nome_curso)
+    return listar_generico(
+        Curso,
+        Curso.nome_curso
+    )
 
 
 def listar_disciplinas():
@@ -98,7 +108,7 @@ def listar_enderecos():
 
 
 # ==================================================
-# SALVAMENTO
+# SALVAR
 # ==================================================
 
 def salvar(modelo, dados):
@@ -115,12 +125,13 @@ def salvar(modelo, dados):
 
         return obj.to_dict()
 
-    except Exception:
+    except Exception as e:
         session.rollback()
-        raise
+        raise e
 
     finally:
         session.close()
+
 
 # ==================================================
 # VALIDACOES
@@ -146,13 +157,18 @@ def validar_nota(nota):
         raise ValueError("Nota inválida.")
 
     if nota < 0 or nota > 10:
-        raise ValueError("A nota deve ser entre 0 e 10.")
+        raise ValueError(
+            "A nota deve ser entre 0 e 10."
+        )
 
 
 def validar_data(data_texto):
 
     try:
-        datetime.strptime(data_texto, "%Y-%m-%d")
+        datetime.strptime(
+            data_texto,
+            "%Y-%m-%d"
+        )
 
     except:
         raise ValueError(
@@ -166,24 +182,36 @@ def validar_texto(valor, campo):
         raise ValueError(
             f"{campo} é obrigatório."
         )
+
+
 # ==================================================
 # CADASTROS
 # ==================================================
 
 def cadastrar_professor(dados):
 
-    validar_texto(dados.get("nome"), "Nome")
+    validar_texto(
+        dados.get("nome"),
+        "Nome"
+    )
 
-    validar_email(dados.get("email"))
+    validar_email(
+        dados.get("email")
+    )
 
     return salvar(Professor, dados)
 
 
 def cadastrar_aluno(dados):
 
-    validar_texto(dados.get("nome"), "Nome")
+    validar_texto(
+        dados.get("nome"),
+        "Nome"
+    )
 
-    validar_email(dados.get("email"))
+    validar_email(
+        dados.get("email")
+    )
 
     return salvar(Aluno, dados)
 
@@ -219,7 +247,9 @@ def cadastrar_matricula(dados):
 
 def cadastrar_nota(dados):
 
-    validar_nota(dados.get("nota"))
+    validar_nota(
+        dados.get("nota")
+    )
 
     return salvar(Nota, dados)
 
@@ -276,11 +306,10 @@ def cadastrar_endereco(dados):
 
     return salvar(Endereco, dados)
 
-# ==================================================
-# ATUALIZAR 
-# ==================================================
 
-
+# ==================================================
+# ATUALIZAR
+# ==================================================
 
 def atualizar(modelo, id_obj, dados):
     session = SessionLocal()
@@ -300,18 +329,17 @@ def atualizar(modelo, id_obj, dados):
 
         return obj.to_dict()
 
-    except Exception:
+    except Exception as e:
         session.rollback()
-        raise
+        raise e
 
     finally:
         session.close()
-        
-        
-# ==================================================
-# EXCLUIR 
-# ==================================================
 
+
+# ==================================================
+# EXCLUIR
+# ==================================================
 
 def excluir(modelo, id_obj):
     session = SessionLocal()
@@ -328,13 +356,14 @@ def excluir(modelo, id_obj):
 
         return True
 
-    except Exception:
+    except Exception as e:
         session.rollback()
-        raise
+        raise e
 
     finally:
         session.close()
-        
+
+
 # ==================================================
 # CURSOS
 # ==================================================
