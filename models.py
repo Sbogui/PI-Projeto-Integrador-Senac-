@@ -19,14 +19,12 @@ class Professor(Base):
         back_populates="professor",
          passive_deletes=True
     )
-
     emails = relationship(
         "Email",
         cascade="all, delete-orphan",
         back_populates="professor",
          passive_deletes=True
     )
-
     enderecos = relationship(
         "Endereco",
         cascade="all, delete-orphan",
@@ -34,11 +32,11 @@ class Professor(Base):
          passive_deletes=True
     )
     disciplinas = relationship(
-    "Disciplina",
-    back_populates="professor",
-    cascade="all, delete-orphan",
-     passive_deletes=True
-)
+        "Disciplina",
+        back_populates="professor",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
 
     def to_dict(self):
         return {
@@ -68,14 +66,12 @@ class Aluno(Base):
         back_populates="aluno",
          passive_deletes=True
     )
-
     emails = relationship(
         "Email",
         cascade="all, delete-orphan",
         back_populates="aluno",
         passive_deletes=True
     )
-
     enderecos = relationship(
         "Endereco",
         cascade="all, delete-orphan",
@@ -83,26 +79,24 @@ class Aluno(Base):
          passive_deletes=True
     )
     matriculas = relationship(
-    "Matricula",
-    back_populates="aluno",
-    cascade="all, delete-orphan",
-     passive_deletes=True
-)
-
+        "Matricula",
+        back_populates="aluno",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
     notas = relationship(
-    "Nota",
-    back_populates="aluno",
-    cascade="all, delete-orphan",
-     passive_deletes=True
-)
-
+        "Nota",
+        back_populates="aluno",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
     presencas = relationship(
-    "Presenca",
-    back_populates="aluno",
-    cascade="all, delete-orphan",
-     passive_deletes=True
-)
-    
+        "Presenca",
+        back_populates="aluno",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+        
     def to_dict(self):
         return {
             "id": self.id,
@@ -126,11 +120,11 @@ class Curso(Base):
     disciplinas = relationship("Disciplina", back_populates="curso", cascade="all, delete")
     
     matriculas = relationship(
-    "Matricula",
-    back_populates="curso",
-    cascade="all, delete-orphan",
-     passive_deletes=True
-)
+        "Matricula",
+        back_populates="curso",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
     
     def to_dict(self):
         return {
@@ -154,24 +148,24 @@ class Disciplina(Base):
     curso = relationship("Curso", back_populates="disciplinas")
     
     professor = relationship(
-    "Professor",
-    back_populates="disciplinas", 
-     passive_deletes=True
-)
+        "Professor",
+        back_populates="disciplinas", 
+        passive_deletes=True
+    )
 
     notas = relationship(
-    "Nota",
-    back_populates="disciplina",
-    cascade="all, delete-orphan", 
-     passive_deletes=True
-)
+        "Nota",
+        back_populates="disciplina",
+        cascade="all, delete-orphan", 
+        passive_deletes=True
+    )
 
     presencas = relationship(
-    "Presenca",
-    back_populates="disciplina",
-    cascade="all, delete-orphan",
-     passive_deletes=True
-)
+        "Presenca",
+        back_populates="disciplina",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
 
     def to_dict(self):
         return {
@@ -256,23 +250,23 @@ class Matricula(Base):
     id_curso = Column(Integer, ForeignKey("cursos.id_curso",ondelete="CASCADE"))
     
     aluno = relationship(
-    "Aluno",
-    back_populates="matriculas",
-     passive_deletes=True
-)
+        "Aluno",
+        back_populates="matriculas",
+        passive_deletes=True
+    )
 
     curso = relationship(
-    "Curso",
-    back_populates="matriculas",
-     passive_deletes=True
-)
+        "Curso",
+        back_populates="matriculas",
+        passive_deletes=True
+    )
 
     presencas = relationship(
-    "Presenca",
-    back_populates="matricula",
-    cascade="all, delete-orphan",
-     passive_deletes=True
-)
+        "Presenca",
+        back_populates="matricula",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
     
 
     def to_dict(self):
@@ -299,16 +293,16 @@ class Nota(Base):
     id_disciplina = Column(Integer, ForeignKey("disciplinas.id_disciplina",ondelete="CASCADE"))
     
     aluno = relationship(
-    "Aluno",
-    back_populates="notas",
-     passive_deletes=True
-)
+        "Aluno",
+        back_populates="notas",
+        passive_deletes=True
+    )
 
     disciplina = relationship(
-    "Disciplina",
-    back_populates="notas",
-     passive_deletes=True
-)
+        "Disciplina",
+        back_populates="notas",
+        passive_deletes=True
+    )
 
     def to_dict(self):
         return {
@@ -335,22 +329,22 @@ class Presenca(Base):
     id_disciplina = Column(Integer, ForeignKey("disciplinas.id_disciplina",ondelete="CASCADE"))
     
     aluno = relationship(
-    "Aluno",
-    back_populates="presencas",
-     passive_deletes=True
-)
+        "Aluno",
+        back_populates="presencas",
+        passive_deletes=True
+    )
 
     disciplina = relationship(
-    "Disciplina",
-    back_populates="presencas",
-     passive_deletes=True
-)
+        "Disciplina",
+        back_populates="presencas",
+        passive_deletes=True
+    )
 
     matricula = relationship(
-    "Matricula",
-    back_populates="presencas",
-     passive_deletes=True
-)
+        "Matricula",
+        back_populates="presencas",
+        passive_deletes=True
+    )
 
     def to_dict(self):
         return {
