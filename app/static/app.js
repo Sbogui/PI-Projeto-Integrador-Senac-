@@ -13,13 +13,14 @@ const COLUNAS = {
     { chave: "nome", titulo: "Nome" },
     { chave: "email", titulo: "E-mail" },
     { chave: "telefone", titulo: "Telefone" },
-    { chave: "curso_id", titulo: "Curso" },
+    { chave: "curso", titulo: "Curso" }
   ],
 
   cursos: [
     { chave: "id_curso", titulo: "ID" },
     { chave: "nome_curso", titulo: "Curso" },
     { chave: "carga_horaria", titulo: "Carga Horária" },
+    { chave: "professor", titulo: "Professor" },
     { chave: "disciplinas", titulo: "Disciplinas" }
   ],
 
@@ -27,32 +28,32 @@ const COLUNAS = {
     { chave: "id_disciplina", titulo: "ID" },
     { chave: "nome_disciplina", titulo: "Disciplina" },
     { chave: "carga_horaria", titulo: "Carga Horária" },
-    { chave: "id_curso", titulo: "Curso" },
-    { chave: "id_professor", titulo: "Professor" }
+    { chave: "curso", titulo: "Curso" },
+    { chave: "professor", titulo: "Professor" },
   ],
 
   matriculas: [
     { chave: "id_matricula", titulo: "ID" },
     { chave: "data_matricula", titulo: "Data" },
     { chave: "situacao", titulo: "Situação" },
-    { chave: "id_aluno", titulo: "Aluno" },
-    { chave: "id_curso", titulo: "Curso" },
+    { chave: "aluno", titulo: "Aluno" },
+    { chave: "curso", titulo: "Curso" },
   ],
 
   notas: [
     { chave: "id_nota", titulo: "ID" },
     { chave: "nota", titulo: "Nota" },
     { chave: "tipo_avaliacao", titulo: "Avaliação" },
-    { chave: "id_aluno", titulo: "Aluno" },
-    { chave: "id_disciplina", titulo: "Disciplina" },
+    { chave: "aluno", titulo: "Aluno" },
+    { chave: "disciplina", titulo: "Disciplina" },
   ],
 
   presencas: [
     { chave: "id_presenca", titulo: "ID" },
     { chave: "data_aula", titulo: "Data" },
     { chave: "presente", titulo: "Presente" },
-    { chave: "id_aluno", titulo: "Aluno" },
-    { chave: "id_disciplina", titulo: "Disciplina" },
+    { chave: "aluno", titulo: "Aluno" },
+    { chave: "disciplina", titulo: "Disciplina" },
   ],
 
   telefones: [
@@ -144,16 +145,19 @@ const CAMPOS = {
     { nome: "nome", rotulo: "Nome", obrigatorio: true },
     { nome: "email", rotulo: "E-mail", tipo: "email" },
     { nome: "telefone", rotulo: "Telefone" },
-
-    {
-      nome: "curso_id", rotulo: "Curso", tipo: "select", origem: "cursos", obrigatorio: true
-    },
+    { nome: "curso_id", rotulo: "Curso", tipo: "select", origem: "cursos", obrigatorio: true},
   ],
 
   cursos: [
-    { nome: "nome_curso", rotulo: "Curso", obrigatorio: true },
-    { nome: "carga_horaria", rotulo: "Carga Horária" },
-
+    {
+      nome: "nome_curso",
+      rotulo: "Curso",
+      obrigatorio: true
+    },
+    {
+      nome: "carga_horaria",
+      rotulo: "Carga Horária"
+    },
     {
       nome: "id_professor",
       rotulo: "Professor",
@@ -169,12 +173,10 @@ const CAMPOS = {
       rotulo: "Disciplina",
       obrigatorio: true
     },
-
     {
       nome: "carga_horaria",
       rotulo: "Carga Horária"
     },
-
     {
       nome: "id_curso",
       rotulo: "Curso",
@@ -182,13 +184,12 @@ const CAMPOS = {
       origem: "cursos",
       obrigatorio: true
     },
-
     {
-    nome: "id_professor",
-    rotulo: "Professor",
-    tipo: "select",
-    origem: "professores",
-    obrigatorio: true
+      nome: "id_professor",
+      rotulo: "Professor",
+      tipo: "select",
+      origem: "professores",
+      obrigatorio: true
     },
   ],
 

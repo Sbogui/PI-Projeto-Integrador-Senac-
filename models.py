@@ -38,6 +38,11 @@ class Professor(Base):
         passive_deletes=True
     )
 
+    cursos = relationship(
+    "Curso",
+    back_populates="professor"
+)
+    
     def to_dict(self):
         return {
             "id": self.id,
@@ -96,7 +101,8 @@ class Aluno(Base):
         cascade="all, delete-orphan",
         passive_deletes=True
     )
-        
+    
+    
     def to_dict(self):
         return {
             "id": self.id,
@@ -104,7 +110,10 @@ class Aluno(Base):
             "email": self.email,
             "data_nascimento": self.data_nascimento,
             "telefone": self.telefone,
-            "curso_id": self.curso_id,
+            "curso": (
+                self.curso.nome_curso
+                if self.curso else "—"
+            ),
         }
 
 
@@ -115,22 +124,46 @@ class Curso(Base):
     id_curso = Column(Integer, primary_key=True, autoincrement=True)
     nome_curso = Column(String(100))
     carga_horaria = Column(Integer)
+    id_professor = Column(Integer, ForeignKey("professores.id"))
 
-    alunos = relationship("Aluno", back_populates="curso", cascade="all, delete")
-    disciplinas = relationship("Disciplina", back_populates="curso", cascade="all, delete")
-    
+    professor = relationship(
+        "Professor",
+        back_populates="cursos"
+    )
+    alunos = relationship(
+        "Aluno",
+        back_populates="curso",
+        cascade="all, delete"
+    )
+    disciplinas = relationship(
+        "Disciplina",
+        back_populates="curso",
+        cascade="all, delete"
+    )
     matriculas = relationship(
         "Matricula",
         back_populates="curso",
         cascade="all, delete-orphan",
         passive_deletes=True
     )
-    
+
     def to_dict(self):
         return {
             "id_curso": self.id_curso,
             "nome_curso": self.nome_curso,
             "carga_horaria": self.carga_horaria,
+
+            "professor": (
+                self.professor.nome
+                if self.professor else "—"
+            ),
+
+            "disciplinas": ", ".join(
+                [
+                    disciplina.nome_disciplina
+                    for disciplina in self.disciplinas
+                ]
+            ) if self.disciplinas else "—",
         }
 
 
@@ -146,7 +179,7 @@ class Disciplina(Base):
     id_professor = Column(Integer, ForeignKey("professores.id", ondelete="CASCADE"))
 
     curso = relationship("Curso", back_populates="disciplinas")
-    
+
     professor = relationship(
         "Professor",
         back_populates="disciplinas", 
@@ -166,14 +199,23 @@ class Disciplina(Base):
         cascade="all, delete-orphan",
         passive_deletes=True
     )
+   
 
     def to_dict(self):
         return {
             "id_disciplina": self.id_disciplina,
             "nome_disciplina": self.nome_disciplina,
             "carga_horaria": self.carga_horaria,
-            "id_curso": self.id_curso,
-            "id_professor": self.id_professor,
+
+            "curso": (
+                self.curso.nome_curso
+                if self.curso else "—"
+            ),
+
+            "professor": (
+                self.professor.nome
+                if self.professor else "—"
+            ),
         }
 
 
@@ -267,15 +309,22 @@ class Matricula(Base):
         cascade="all, delete-orphan",
         passive_deletes=True
     )
-    
 
     def to_dict(self):
         return {
             "id_matricula": self.id_matricula,
             "data_matricula": self.data_matricula,
             "situacao": self.situacao,
-            "id_aluno": self.id_aluno,
-            "id_curso": self.id_curso,
+
+            "aluno": (
+                self.aluno.nome
+                if self.aluno else "—"
+            ),
+
+            "curso": (
+                self.curso.nome_curso
+                if self.curso else "—"
+            ),
         }
 
 
@@ -283,7 +332,6 @@ class Nota(Base):
     __tablename__ = "notas"
     __table_args__ = {"sqlite_autoincrement": True}
 
-   
 
     id_nota = Column(Integer, primary_key=True, autoincrement=True)
     nota = Column(Integer)
@@ -303,16 +351,24 @@ class Nota(Base):
         back_populates="notas",
         passive_deletes=True
     )
+    
 
     def to_dict(self):
         return {
             "id_nota": self.id_nota,
             "nota": self.nota,
             "tipo_avaliacao": self.tipo_avaliacao,
-            "id_aluno": self.id_aluno,
-            "id_disciplina": self.id_disciplina,
-        }
 
+            "aluno": (
+                self.aluno.nome
+                if self.aluno else "—"
+            ),
+
+            "disciplina": (
+                self.disciplina.nome_disciplina
+                if self.disciplina else "—"
+            ),
+        }
 
 class Presenca(Base):
     __tablename__ = "presenca"
@@ -346,14 +402,23 @@ class Presenca(Base):
         passive_deletes=True
     )
 
+   
+
     def to_dict(self):
         return {
             "id_presenca": self.id_presenca,
             "data_aula": self.data_aula,
             "presente": self.presente,
-            "id_matricula": self.id_matricula,
-            "id_aluno": self.id_aluno,
-            "id_disciplina": self.id_disciplina,
+
+            "aluno": (
+                self.aluno.nome
+                if self.aluno else "—"
+            ),
+
+            "disciplina": (
+                self.disciplina.nome_disciplina
+                if self.disciplina else "—"
+            ),
         }
 
 
