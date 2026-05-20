@@ -20,6 +20,7 @@ const COLUNAS = {
     { chave: "id_curso", titulo: "ID" },
     { chave: "nome_curso", titulo: "Curso" },
     { chave: "carga_horaria", titulo: "Carga Horária" },
+    { chave: "professor", titulo: "Professor" },
     { chave: "disciplinas", titulo: "Disciplinas" }
   ],
 
@@ -144,37 +145,19 @@ const CAMPOS = {
     { nome: "nome", rotulo: "Nome", obrigatorio: true },
     { nome: "email", rotulo: "E-mail", tipo: "email" },
     { nome: "telefone", rotulo: "Telefone" },
-
-    {
-      nome: "curso_id", rotulo: "Curso", tipo: "select", origem: "cursos", obrigatorio: true
-    },
+    { nome: "curso_id", rotulo: "Curso", tipo: "select", origem: "cursos", obrigatorio: true},
   ],
 
   cursos: [
-    { nome: "nome_curso", rotulo: "Curso", obrigatorio: true },
-    { nome: "carga_horaria", rotulo: "Carga Horária" },
-
-    {
-      nome: "id_professor",
-      rotulo: "Professor",
-      tipo: "select",
-      origem: "professores",
-      obrigatorio: true
-    },
+    { nome: "nome_curso", rotulo: "Curso", obrigatorio: true},
+    { nome: "carga_horaria", rotulo: "Carga Horária"},
+    { nome: "id_professor", rotulo: "Professor", tipo: "select", origem: "professores", obrigatorio: true},
+    { nome: "id_disciplina", rotulo: "Disciplina", tipo: "select", origem: "disciplinas"},
   ],
 
   disciplinas: [
-    {
-      nome: "nome_disciplina",
-      rotulo: "Disciplina",
-      obrigatorio: true
-    },
-
-    {
-      nome: "carga_horaria",
-      rotulo: "Carga Horária"
-    },
-
+    { nome: "nome_disciplina", rotulo: "Disciplina", obrigatorio: true},
+    { nome: "carga_horaria", rotulo: "Carga Horária"},
     {
       nome: "id_curso",
       rotulo: "Curso",
@@ -182,7 +165,6 @@ const CAMPOS = {
       origem: "cursos",
       obrigatorio: true
     },
-
     {
     nome: "id_professor",
     rotulo: "Professor",
