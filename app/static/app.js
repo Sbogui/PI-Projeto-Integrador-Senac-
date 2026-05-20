@@ -165,6 +165,12 @@ const CAMPOS = {
       origem: "professores",
       obrigatorio: true
     },
+    {
+      nome: "disciplinas",
+      rotulo: "Disciplinas",
+      tipo: "multiselect",
+      origem: "disciplinas"
+    },
   ],
 
   disciplinas: [
@@ -503,7 +509,7 @@ async function renderizarFormulario(tipo) {
 
     wrapper.appendChild(label);
 
-    if (campo.tipo === "select") {
+    if (campo.tipo === "select" || campo.tipo === "multiselect") {
 
       const select = document.createElement("select");
 
@@ -511,18 +517,24 @@ async function renderizarFormulario(tipo) {
 
       select.name = campo.nome;
 
+      if (campo.tipo === "multiselect") {
+        select.multiple = true;
+      }
+
       if (campo.obrigatorio) {
         select.required = true;
       }
 
-      const placeholder = document.createElement("option");
+      if (campo.tipo !== "multiselect") {
 
-      placeholder.value = "";
+        const placeholder = document.createElement("option");
 
-      placeholder.textContent = "Selecione...";
+        placeholder.value = "";
 
-      select.appendChild(placeholder);
+        placeholder.textContent = "Selecione...";
 
+        select.appendChild(placeholder);
+      }
       try {
 
         const itens = await buscar(campo.origem);
@@ -703,7 +715,18 @@ async function enviarFormulario(evento) {
     const elemento =
       formulario.elements[campo.nome];
 
-    const valor = elemento.value.trim();
+    let valor;
+
+    if (campo.tipo === "multiselect") {
+
+      valor =
+        [...elemento.selectedOptions]
+          .map(option => option.value);
+
+    } else {
+
+      valor = elemento.value.trim();
+    }
 
     if (campo.obrigatorio && !valor) {
 
@@ -717,7 +740,10 @@ async function enviarFormulario(evento) {
       return;
     }
 
-    if (valor !== "") {
+    if (
+      valor !== "" &&
+      (!Array.isArray(valor) || valor.length > 0)
+    ) {
       dados[campo.nome] = valor;
     }
   }

@@ -223,8 +223,45 @@ def cadastrar_curso(dados):
         "Curso"
     )
 
-    return salvar(Curso, dados)
+    session = SessionLocal()
 
+    try:
+
+        disciplinas_ids = dados.pop("disciplinas", [])
+
+        curso = Curso(**dados)
+
+        session.add(curso)
+
+        session.commit()
+
+        session.refresh(curso)
+
+        for id_disciplina in disciplinas_ids:
+
+            disciplina = session.get(
+                Disciplina,
+                int(id_disciplina)
+            )
+
+            if disciplina:
+                disciplina.id_curso = curso.id_curso
+
+        session.commit()
+
+        session.refresh(curso)
+
+        return curso.to_dict()
+
+    except Exception as e:
+
+        session.rollback()
+
+        raise e
+
+    finally:
+
+        session.close()
 
 def cadastrar_disciplina(dados):
 
@@ -370,14 +407,60 @@ def excluir(modelo, id_obj):
 
 def atualizar_curso(id_obj, dados):
 
-    if "nome_curso" in dados:
-        validar_texto(
-            dados["nome_curso"],
-            "Curso"
-        )
+    session = SessionLocal()
 
-    return atualizar(Curso, id_obj, dados)
+    try:
 
+        curso = session.get(Curso, id_obj)
+
+        if not curso:
+            return None
+
+        if "nome_curso" in dados:
+            validar_texto(
+                dados["nome_curso"],
+                "Curso"
+            )
+
+        disciplinas_ids = dados.pop("disciplinas", [])
+
+        for chave, valor in dados.items():
+            setattr(curso, chave, valor)
+
+        disciplinas_atuais = list(curso.disciplinas)
+
+        for disciplina in disciplinas_atuais:
+
+            if str(disciplina.id_disciplina) not in disciplinas_ids:
+                disciplina.id_curso = None
+
+        for id_disciplina in disciplinas_ids:
+
+            disciplina = session.get(
+                Disciplina,
+                int(id_disciplina)
+            )
+
+            if disciplina:
+                disciplina.id_curso = curso.id_curso
+
+        session.commit()
+
+        session.refresh(curso)
+
+        return curso.to_dict()
+
+    except Exception as e:
+
+        session.rollback()
+
+        print(e)
+
+        raise e
+
+    finally:
+
+        session.close()
 
 def excluir_curso(id_obj):
     return excluir(Curso, id_obj)
