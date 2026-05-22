@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Aluno</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='aluno.css') }}">
+</head>
+
+<body>
+
+<header>
+
+    <h1>Área do Aluno</h1>
+
+    <a href="/logout">
+        Sair
+    </a>
+
+</header>
+
+<div class="container">
+
+    <h2>
+        Bem-vindo {{ session['usuario'] }}
+    </h2>
+
+    <div class="cards">
+
+        <div class="card">
+            <h2>Notas</h2>
+            <p>Visualizar notas</p>
+        </div>
+
+        <div class="card">
+            <h2>Frequência</h2>
+            <p>Visualizar presença</p>
+        </div>
+
+        <div class="card">
+            <h2>Matrícula</h2>
+            <p>Dados da matrícula</p>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

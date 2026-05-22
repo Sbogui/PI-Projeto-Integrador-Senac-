@@ -9,7 +9,10 @@ def create_app():
     os.makedirs(INSTANCE_DIR, exist_ok=True)
 
     app = Flask(__name__, instance_relative_config=True)
+
     app.config.from_object(Config)
+
+    app.secret_key = "senac_secret_key"
 
     from app.routes import bp as api_bp, paginas as paginas_bp
 

@@ -7,6 +7,7 @@ from sqlalchemy import func, select
 
 from database import Base, SessionLocal, engine
 import models  # noqa: F401 — registra tabelas no metadata
+from models import Usuario
 
 
 def populate_database():
@@ -18,7 +19,36 @@ def populate_database():
     Base.metadata.create_all(bind=engine)
 
     session = SessionLocal()
+    
 
+
+    admin = Usuario(
+    nome="Administrador",
+    email="admin@gmail.com",
+    senha="123",
+    tipo="admin"
+    )
+
+    professor = Usuario(
+    nome="Professor",
+    email="prof@gmail.com",
+    senha="123",
+    tipo="professor"
+    )
+
+    aluno = Usuario(
+    nome="Aluno",
+    email="aluno@gmail.com",
+    senha="123",
+    tipo="aluno"
+    )
+
+    session.add_all([
+    admin,
+    professor,
+    aluno
+])
+    
     try:
 
         # ==================================================

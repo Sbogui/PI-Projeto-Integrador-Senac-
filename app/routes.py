@@ -1,5 +1,19 @@
 import flask as fk
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select
+from database import SessionLocal
+from models import Usuario
+
+from flask import (
+    Blueprint,
+    jsonify,
+    request,
+    render_template,
+    redirect,
+    session,
+    url_for,
+    flash
+)
 
 from servicos import (
     cadastrar_aluno,
@@ -45,6 +59,7 @@ from servicos import (
     atualizar_endereco,
     excluir_endereco,
 )
+
 
 bp = fk.Blueprint("api", __name__, url_prefix="/api")
 
@@ -522,7 +537,89 @@ def delete_endereco(id):
 
 paginas = fk.Blueprint("paginas", __name__)
 
-
-@paginas.get("/")
+@paginas.route("/")
 def home():
-    return fk.render_template("index.html")
+
+    if "usuario" not in session:
+        return redirect(url_for("paginas.login"))
+
+    return render_template("index.html")
+
+
+@paginas.route("/login", methods=["GET", "POST"])
+def login():
+
+    if request.method == "POST":
+
+        email = request.form.get("email")
+        senha = request.form.get("senha")
+
+        db = SessionLocal()
+
+        usuario = db.scalar(
+            select(Usuario).where(
+                Usuario.email == email,
+                Usuario.senha == senha
+            )
+        )
+
+        db.close()
+
+        if usuario:
+
+            session["usuario"] = usuario.nome
+            session["tipo"] = usuario.tipo
+
+            if usuario.tipo == "admin":
+                return redirect(url_for("paginas.home"))
+
+            elif usuario.tipo == "professor":
+                return redirect(url_for("paginas.professor"))
+
+            elif usuario.tipo == "aluno":
+                return redirect(url_for("paginas.aluno"))
+
+        flash("Email ou senha inválidos")
+
+    return render_template("login.html")
+@paginas.route("/admin")
+def admin():
+
+    if "usuario" not in session:
+        return redirect(url_for("paginas.login"))
+
+    if session["tipo"] != "admin":
+        return "Acesso negado"
+
+    return render_template("admin.html")
+
+@paginas.route("/professor")
+def professor():
+
+    if "usuario" not in session:
+        return redirect(url_for("paginas.login"))
+
+    if session["tipo"] != "professor":
+        return "Acesso negado"
+
+    return render_template("professor.html")
+
+
+@paginas.route("/aluno")
+def aluno():
+
+    if "usuario" not in session:
+        return redirect(url_for("paginas.login"))
+
+    if session["tipo"] != "aluno":
+        return "Acesso negado"
+
+    return render_template("aluno.html")
+
+
+@paginas.route("/logout")
+def logout():
+
+    session.clear()
+
+    return redirect(url_for("paginas.login"))

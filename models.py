@@ -4,6 +4,29 @@ from sqlalchemy.orm import relationship
 from database import Base
 
 
+
+
+class Usuario(Base):
+    __tablename__ = "usuarios"
+
+    id = Column(Integer, primary_key=True)
+
+    nome = Column(String(100), nullable=False)
+
+    email = Column(String(120), unique=True, nullable=False)
+
+    senha = Column(String(120), nullable=False)
+
+    tipo = Column(String(20), nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "nome": self.nome,
+            "email": self.email,
+            "tipo": self.tipo
+        }
+
 class Professor(Base):
     __tablename__ = "professores"
     __table_args__ = {"sqlite_autoincrement": True}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>Professor</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='professor.css') }}">
+</head>
+
+<body>
+
+<header>
+
+    <h1>Painel Professor</h1>
+
+    <a href="/logout">
+        Sair
+    </a>
+
+</header>
+
+<div class="container">
+
+    <h2>
+        Bem-vindo {{ session['usuario'] }}
+    </h2>
+
+    <div class="cards">
+
+        <div class="card">
+            <h2>Notas</h2>
+            <p>Lançamento de notas dos alunos</p>
+        </div>
+
+        <div class="card">
+            <h2>Presenças</h2>
+            <p>Controle de frequência</p>
+        </div>
+
+        <div class="card">
+            <h2>Turmas</h2>
+            <p>Visualização das turmas</p>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
