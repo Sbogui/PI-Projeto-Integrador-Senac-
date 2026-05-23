@@ -15,16 +15,21 @@
 
     <h1>Área do Aluno</h1>
 
-    <a href="/logout">
+    <div class="usuario_area">
+       <p class="p1">Bem-vindo, {{ session['usuario'] }}</p>
+  
+
+    <a href="{{ url_for('paginas.logout') }}">
         Sair
     </a>
+    </div>
 
 </header>
 
 <div class="container">
 
     <h2>
-        Bem-vindo {{ session['usuario'] }}
+      Painel do Aluno
     </h2>
 
     <div class="cards">

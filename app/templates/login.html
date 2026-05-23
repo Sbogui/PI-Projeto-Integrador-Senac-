@@ -6,7 +6,7 @@
     <title>Login</title>
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='/login.css') }}">
+          href="{{ url_for('static', filename='login.css') }}">
 </head>
 
 <body>
@@ -32,12 +32,21 @@
             required
         >
 
-        <input
-            type="password"
-            name="senha"
-            placeholder="Digite sua senha"
-            required
-        >
+        <div class="senha-box">
+
+            <input
+                type="password"
+                name="senha"
+                id="senha"
+                placeholder="Digite sua senha"
+                required
+            >
+
+            <span onclick="mostrarSenha()">
+                👁
+            </span>
+
+        </div>
 
         <button type="submit">
             Entrar
@@ -45,7 +54,40 @@
 
     </form>
 
+    <div class="links">
+        
+        <p align="right"><a href="{{ url_for('paginas.recuperar_senha') }}">
+    Esqueci minha senha
+</a></p>
+
+<br>
+     
+        <p>
+            Não possui conta?
+            <a href="{{ url_for('paginas.cadastro') }}">
+                <br><br>
+                Criar conta
+            </a>
+        </p>
+
+    </div>
+
 </div>
+
+<script>
+
+function mostrarSenha() {
+
+    const campo = document.getElementById("senha")
+
+    if (campo.type === "password") {
+        campo.type = "text"
+    } else {
+        campo.type = "password"
+    }
+}
+
+</script>
 
 </body>
 </html>

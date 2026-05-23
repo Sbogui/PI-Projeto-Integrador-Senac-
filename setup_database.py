@@ -8,6 +8,7 @@ from sqlalchemy import func, select
 from database import Base, SessionLocal, engine
 import models  # noqa: F401 — registra tabelas no metadata
 from models import Usuario
+from werkzeug.security import generate_password_hash
 
 
 def populate_database():
@@ -25,21 +26,21 @@ def populate_database():
     admin = Usuario(
     nome="Administrador",
     email="admin@gmail.com",
-    senha="123",
+    senha=generate_password_hash("123"),
     tipo="admin"
     )
 
     professor = Usuario(
     nome="Professor",
     email="prof@gmail.com",
-    senha="123",
+    senha=generate_password_hash("123"),
     tipo="professor"
     )
 
     aluno = Usuario(
     nome="Aluno",
     email="aluno@gmail.com",
-    senha="123",
+    senha=generate_password_hash("123"),
     tipo="aluno"
     )
 
@@ -149,28 +150,28 @@ def populate_database():
                 email="ana@escola.example",
                 data_nascimento="2005-03-10",
                 telefone="51999990001",
-                curso_id=cursos[0].id_curso
+               
             ),
             models.Aluno(
                 nome="Bruno Lima",
                 email="bruno@escola.example",
                 data_nascimento="2004-07-21",
                 telefone="51999990002",
-                curso_id=cursos[0].id_curso
+                
             ),
             models.Aluno(
                 nome="Carla Dias",
                 email="carla@escola.example",
                 data_nascimento="2005-01-15",
                 telefone="51999990003",
-                curso_id=cursos[0].id_curso
+                
             ),
             models.Aluno(
                 nome="Diego Rocha",
                 email="diego@escola.example",
                 data_nascimento="2004-11-02",
                 telefone="51999990004",
-                curso_id=cursos[0].id_curso,
+                
             ),
         ]
 

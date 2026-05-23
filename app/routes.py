@@ -2,7 +2,10 @@ import flask as fk
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 from database import SessionLocal
-from models import Usuario
+from models import Usuario, Aluno, Professor
+from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash
+from auth import login_required, role_required
 
 from flask import (
     Blueprint,
@@ -73,11 +76,15 @@ def _erro(mensagem, status=400):
 # ==================================================
 
 @bp.get("/professores")
+@login_required
+@role_required("admin")
 def professores():
     return fk.jsonify(listar_professores())
 
 
 @bp.post("/professores")
+@login_required
+@role_required("admin")
 def criar_professor():
     dados = fk.request.get_json(silent=True) or {}
 
@@ -91,6 +98,8 @@ def criar_professor():
         return _erro("Já existe um professor com este e-mail.", 409)
 
 @bp.put("/professores/<int:id>")
+@login_required
+@role_required("admin")
 def put_professor(id):
 
     dados = fk.request.get_json()
@@ -104,6 +113,8 @@ def put_professor(id):
 
 
 @bp.delete("/professores/<int:id>")
+@login_required
+@role_required("admin")
 def delete_professor(id):
 
     sucesso = excluir_professor(id)
@@ -119,11 +130,15 @@ def delete_professor(id):
 # ==================================================
 
 @bp.get("/alunos")
+@login_required
+@role_required("admin", "professor")
 def alunos():
     return fk.jsonify(listar_alunos())
 
 
 @bp.post("/alunos")
+@login_required
+@role_required("admin")
 def criar_aluno():
     dados = fk.request.get_json(silent=True) or {}
 
@@ -137,6 +152,8 @@ def criar_aluno():
         return _erro("Já existe um aluno com este e-mail.", 409)
 
 @bp.put("/alunos/<int:id>")
+@login_required
+@role_required("admin")
 def put_aluno(id):
 
     dados = fk.request.get_json()
@@ -150,6 +167,8 @@ def put_aluno(id):
 
 
 @bp.delete("/alunos/<int:id>")
+@login_required
+@role_required("admin")
 def delete_aluno(id):
 
     sucesso = excluir_aluno(id)
@@ -165,12 +184,16 @@ def delete_aluno(id):
 # ==================================================
 
 @bp.get("/cursos")
+@login_required
 def cursos():
     return fk.jsonify(listar_cursos())
 
 
 @bp.post("/cursos")
+@login_required
+@role_required("admin")
 def criar_curso():
+
     dados = fk.request.get_json(silent=True) or {}
 
     try:
@@ -183,6 +206,8 @@ def criar_curso():
         return _erro("Erro ao cadastrar curso.", 409)
     
 @bp.put("/cursos/<int:id>")
+@login_required
+@role_required("admin")
 def put_curso(id):
 
     dados = fk.request.get_json()
@@ -195,6 +220,8 @@ def put_curso(id):
     return fk.jsonify(curso)
 
 @bp.delete("/cursos/<int:id>")
+@login_required
+@role_required("admin")
 def delete_curso(id):
 
     sucesso = excluir_curso(id)
@@ -210,11 +237,14 @@ def delete_curso(id):
 # ==================================================
 
 @bp.get("/disciplinas")
+@login_required
 def disciplinas():
     return fk.jsonify(listar_disciplinas())
 
 
 @bp.post("/disciplinas")
+@login_required
+@role_required("admin")
 def criar_disciplina():
     dados = fk.request.get_json(silent=True) or {}
 
@@ -228,6 +258,8 @@ def criar_disciplina():
         return _erro("Erro ao cadastrar disciplina.", 409)
 
 @bp.put("/disciplinas/<int:id>")
+@login_required
+@role_required("admin")
 def put_disciplina(id):
 
     dados = fk.request.get_json()
@@ -241,6 +273,8 @@ def put_disciplina(id):
 
 
 @bp.delete("/disciplinas/<int:id>")
+@login_required
+@role_required("admin")
 def delete_disciplina(id):
 
     sucesso = excluir_disciplina(id)
@@ -256,11 +290,15 @@ def delete_disciplina(id):
 # ==================================================
 
 @bp.get("/matriculas")
+@login_required
+@role_required("admin", "professor")
 def matriculas():
     return fk.jsonify(listar_matriculas())
 
 
 @bp.post("/matriculas")
+@login_required
+@role_required("admin")
 def criar_matricula():
     dados = fk.request.get_json(silent=True) or {}
 
@@ -275,6 +313,8 @@ def criar_matricula():
 
 
 @bp.put("/matriculas/<int:id>")
+@login_required
+@role_required("admin")
 def put_matricula(id):
 
     dados = fk.request.get_json()
@@ -288,6 +328,8 @@ def put_matricula(id):
 
 
 @bp.delete("/matriculas/<int:id>")
+@login_required
+@role_required("admin")
 def delete_matricula(id):
 
     sucesso = excluir_matricula(id)
@@ -304,11 +346,15 @@ def delete_matricula(id):
 # ==================================================
 
 @bp.get("/notas")
+@login_required
+@role_required("admin", "professor")
 def notas():
     return fk.jsonify(listar_notas())
 
 
 @bp.post("/notas")
+@login_required
+@role_required("admin", "professor")
 def criar_nota():
     dados = fk.request.get_json(silent=True) or {}
 
@@ -322,6 +368,8 @@ def criar_nota():
         return _erro("Erro ao cadastrar nota.", 409)
 
 @bp.put("/notas/<int:id>")
+@login_required
+@role_required("admin", "professor")
 def put_nota(id):
 
     dados = fk.request.get_json()
@@ -335,6 +383,8 @@ def put_nota(id):
 
 
 @bp.delete("/notas/<int:id>")
+@login_required
+@role_required("admin")
 def delete_nota(id):
 
     sucesso = excluir_nota(id)
@@ -350,11 +400,14 @@ def delete_nota(id):
 # ==================================================
 
 @bp.get("/presencas")
+@login_required
+@role_required("admin", "professor")
 def presencas():
     return fk.jsonify(listar_presencas())
 
-
 @bp.post("/presencas")
+@login_required
+@role_required("admin", "professor")
 def criar_presenca():
     dados = fk.request.get_json(silent=True) or {}
 
@@ -368,6 +421,8 @@ def criar_presenca():
         return _erro("Erro ao cadastrar presença.", 409)
 
 @bp.put("/presencas/<int:id>")
+@login_required
+@role_required("admin", "professor")
 def put_presenca(id):
 
     dados = fk.request.get_json()
@@ -381,6 +436,8 @@ def put_presenca(id):
 
 
 @bp.delete("/presencas/<int:id>")
+@login_required
+@role_required("admin")
 def delete_presenca(id):
 
     sucesso = excluir_presenca(id)
@@ -396,11 +453,15 @@ def delete_presenca(id):
 # ==================================================
 
 @bp.get("/telefones")
+@login_required
+@role_required("admin")
 def telefones():
     return fk.jsonify(listar_telefones())
 
 
 @bp.post("/telefones")
+@login_required
+@role_required("admin")
 def criar_telefone():
     dados = fk.request.get_json(silent=True) or {}
 
@@ -415,6 +476,8 @@ def criar_telefone():
 
 
 @bp.put("/telefones/<int:id>")
+@login_required
+@role_required("admin")
 def put_telefone(id):
 
     dados = fk.request.get_json()
@@ -428,6 +491,8 @@ def put_telefone(id):
 
 
 @bp.delete("/telefones/<int:id>")
+@login_required
+@role_required("admin")
 def delete_telefone(id):
 
     sucesso = excluir_telefone(id)
@@ -443,11 +508,15 @@ def delete_telefone(id):
 # ==================================================
 
 @bp.get("/emails")
+@login_required
+@role_required("admin")
 def emails():
     return fk.jsonify(listar_emails())
 
 
 @bp.post("/emails")
+@login_required
+@role_required("admin")
 def criar_email():
     dados = fk.request.get_json(silent=True) or {}
 
@@ -459,7 +528,10 @@ def criar_email():
 
     except IntegrityError:
         return _erro("Erro ao cadastrar email.", 409)
+    
 @bp.put("/emails/<int:id>")
+@login_required
+@role_required("admin")
 def put_email(id):
 
     dados = fk.request.get_json()
@@ -473,6 +545,8 @@ def put_email(id):
 
 
 @bp.delete("/emails/<int:id>")
+@login_required
+@role_required("admin")
 def delete_email(id):
 
     sucesso = excluir_email(id)
@@ -489,11 +563,15 @@ def delete_email(id):
 # ==================================================
 
 @bp.get("/enderecos")
+@login_required
+@role_required("admin")
 def enderecos():
     return fk.jsonify(listar_enderecos())
 
 
 @bp.post("/enderecos")
+@login_required
+@role_required("admin")
 def criar_endereco():
     dados = fk.request.get_json(silent=True) or {}
 
@@ -508,6 +586,8 @@ def criar_endereco():
 
 
 @bp.put("/enderecos/<int:id>")
+@login_required
+@role_required("admin")
 def put_endereco(id):
 
     dados = fk.request.get_json()
@@ -521,6 +601,8 @@ def put_endereco(id):
 
 
 @bp.delete("/enderecos/<int:id>")
+@login_required
+@role_required("admin")
 def delete_endereco(id):
 
     sucesso = excluir_endereco(id)
@@ -538,6 +620,7 @@ def delete_endereco(id):
 paginas = fk.Blueprint("paginas", __name__)
 
 @paginas.route("/")
+@login_required
 def home():
 
     if "usuario" not in session:
@@ -550,6 +633,7 @@ def home():
 def login():
 
     if request.method == "POST":
+        session.clear()
 
         email = request.form.get("email")
         senha = request.form.get("senha")
@@ -557,16 +641,16 @@ def login():
         db = SessionLocal()
 
         usuario = db.scalar(
-            select(Usuario).where(
-                Usuario.email == email,
-                Usuario.senha == senha
-            )
+        select(Usuario).where(
+         Usuario.email == email
         )
+    )
 
         db.close()
 
-        if usuario:
-
+        if usuario and check_password_hash(usuario.senha, senha):
+            
+            session["usuario_id"] = usuario.id
             session["usuario"] = usuario.nome
             session["tipo"] = usuario.tipo
 
@@ -582,7 +666,10 @@ def login():
         flash("Email ou senha inválidos")
 
     return render_template("login.html")
+
 @paginas.route("/admin")
+@login_required
+@role_required("admin")
 def admin():
 
     if "usuario" not in session:
@@ -594,6 +681,8 @@ def admin():
     return render_template("admin.html")
 
 @paginas.route("/professor")
+@login_required
+@role_required("professor")
 def professor():
 
     if "usuario" not in session:
@@ -606,6 +695,8 @@ def professor():
 
 
 @paginas.route("/aluno")
+@login_required
+@role_required("aluno")
 def aluno():
 
     if "usuario" not in session:
@@ -623,3 +714,71 @@ def logout():
     session.clear()
 
     return redirect(url_for("paginas.login"))
+
+
+@paginas.route("/cadastro", methods=["GET", "POST"])
+def cadastro():
+
+    if request.method == "POST":
+
+        nome = request.form.get("nome")
+        email = request.form.get("email")
+        senha = request.form.get("senha")
+        confirmar_senha = request.form.get("confirmar_senha")
+        tipo = request.form.get("tipo")
+
+        if not nome or not email or not senha or not tipo:
+            flash("Preencha todos os campos")
+            return redirect(url_for("paginas.cadastro"))
+
+        if senha != confirmar_senha:
+            flash("As senhas não conferem")
+            return redirect(url_for("paginas.cadastro"))
+
+        db = SessionLocal()
+
+        try:
+            usuario_existente = db.scalar(
+                select(Usuario).where(Usuario.email == email)
+            )
+
+            if usuario_existente:
+                flash("Email já cadastrado")
+                return redirect(url_for("paginas.cadastro"))
+
+            novo_usuario = Usuario(
+                nome=nome,
+                email=email,
+                senha=generate_password_hash(senha),
+                tipo=tipo
+            )
+
+            db.add(novo_usuario)
+            db.flush()
+
+            if tipo == "aluno":
+                db.add(Aluno(nome=nome, email=email, id_usuario=novo_usuario.id))
+
+            elif tipo == "professor":
+                db.add(Professor(nome=nome, email=email, id_usuario=novo_usuario.id))
+
+            db.commit()
+
+            flash("Usuário criado com sucesso")
+            return redirect(url_for("paginas.login"))
+
+        except Exception as e:
+            db.rollback()
+            flash("Erro ao criar usuário")
+            print("ERRO CADASTRO:", e)
+
+        finally:
+            db.close()
+
+    return render_template("cadastro.html")
+
+@paginas.route("/recuperar-senha")
+def recuperar_senha():
+
+    return "Página de recuperação de senha em desenvolvimento"
+

@@ -56,3 +56,12 @@ header a{
 .card p{
     color:#64748b;
 }
+.usuario_area{
+     display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.p1{
+    text-align: right;
+    
+}

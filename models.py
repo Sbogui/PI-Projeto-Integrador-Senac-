@@ -84,9 +84,13 @@ class Aluno(Base):
     email = Column(String(120), unique=True)
     data_nascimento = Column(String(10))
     telefone = Column(String(15))
-    curso_id = Column(Integer, ForeignKey("cursos.id_curso", ondelete="CASCADE"))
-
-    curso = relationship("Curso", back_populates="alunos")
+    id_usuario = Column(
+        Integer,
+        ForeignKey("usuarios.id")
+)
+    
+    usuario = relationship("Usuario")
+    
 
     telefones = relationship(
         "Telefone",
@@ -133,10 +137,7 @@ class Aluno(Base):
             "email": self.email,
             "data_nascimento": self.data_nascimento,
             "telefone": self.telefone,
-            "curso": (
-                self.curso.nome_curso
-                if self.curso else "—"
-            ),
+        
         }
 
 
@@ -153,11 +154,7 @@ class Curso(Base):
         "Professor",
         back_populates="cursos"
     )
-    alunos = relationship(
-        "Aluno",
-        back_populates="curso",
-        cascade="all, delete"
-    )
+    
     disciplinas = relationship(
         "Disciplina",
         back_populates="curso",

@@ -54,3 +54,29 @@ button{
     margin-bottom:20px;
     text-align:center;
 }
+
+.links{
+    margin-top: 20px;
+    text-align: center;
+}
+
+.links a{
+    color: blue;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.links a:hover{
+    text-decoration: underline;
+}
+
+.senha-box{
+    position: relative;
+}
+
+.senha-box span{
+    position: absolute;
+    right: 15px;
+    top: 12px;
+    cursor: pointer;
+}
