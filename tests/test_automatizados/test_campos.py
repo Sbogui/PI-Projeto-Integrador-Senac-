@@ -2,7 +2,7 @@ def test_cadastro_sem_nome(client):
     response = client.post(
         "/cadastro",
         data={
-            "nome": "",
+            "nome": "Pietro",
             "email": "teste@email.com",
             "senha": "123456",
             "confirmar_senha": "123456",
