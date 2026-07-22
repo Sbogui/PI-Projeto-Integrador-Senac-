@@ -15,15 +15,17 @@
 <body>
 
   <header class="topo">
-    <h1>Sistema Escolar</h1>
-    <p align="right">Bem-vindo, {{ session['usuario'] }}</p>
-    <p align="right" ><a href="/logout">
-    Sair
-</a></p>
 
-    <p class="subtitulo">
-      Consumindo API Flask + SQLAlchemy
-    </p>
+    <div class="topo-marca">
+      <h1>Sistema Escolar</h1>
+    </div>
+
+    <div class="topo-usuario">
+      <span class="selo" aria-hidden="true">CF</span>
+      <span class="boas-vindas">Bem-vindo, {{ session['usuario'] }}</span>
+      <a href="/logout" class="sair">Sair</a>
+    </div>
+
   </header>
 
   <!-- ===================================== -->
@@ -153,16 +155,6 @@
     </section>
 
   </main>
-
-  <!-- ===================================== -->
-  <!-- RODAPÉ -->
-  <!-- ===================================== -->
-
-  <footer class="rodape">
-    <p>
-      Projeto Acadêmico - Flask + SQLAlchemy + SQLite
-    </p>
-  </footer>
 
   <!-- ===================================== -->
   <!-- JS -->
