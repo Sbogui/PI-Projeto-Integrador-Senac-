@@ -29,6 +29,7 @@ from servicos import (
     cadastrar_telefone,
     cadastrar_email,
     cadastrar_endereco,
+    cadastrar_turma,
 
     listar_alunos,
     listar_professores,
@@ -40,6 +41,7 @@ from servicos import (
     listar_telefones,
     listar_emails,
     listar_enderecos,
+    listar_turmas,
     
     atualizar_professor,
     excluir_professor,
@@ -61,6 +63,18 @@ from servicos import (
     excluir_email,
     atualizar_endereco,
     excluir_endereco,
+    atualizar_turma,
+    excluir_turma,
+
+    # Área do Professor
+    AcessoNegadoError,
+    obter_dashboard_professor,
+    listar_turmas_professor,
+    obter_turma_detalhe,
+    cadastrar_nota_professor,
+    registrar_presencas_turma,
+    historico_notas_aluno,
+    historico_presencas_aluno,
 )
 
 
@@ -613,6 +627,190 @@ def delete_endereco(id):
     return fk.jsonify({
         "mensagem": "Endereço excluído"
     })
+
+
+# ==================================================
+# TURMAS (cadastro administrativo)
+# ==================================================
+
+@bp.get("/turmas")
+@login_required
+@role_required("admin", "professor")
+def turmas():
+    return fk.jsonify(listar_turmas())
+
+
+@bp.post("/turmas")
+@login_required
+@role_required("admin")
+def criar_turma():
+    dados = fk.request.get_json(silent=True) or {}
+
+    try:
+        return fk.jsonify(cadastrar_turma(dados)), 201
+
+    except ValueError as exc:
+        return _erro(str(exc))
+
+    except IntegrityError:
+        return _erro("Erro ao cadastrar turma.", 409)
+
+
+@bp.put("/turmas/<int:id>")
+@login_required
+@role_required("admin")
+def put_turma(id):
+
+    dados = fk.request.get_json()
+
+    turma = atualizar_turma(id, dados)
+
+    if not turma:
+        return _erro("Turma não encontrada", 404)
+
+    return fk.jsonify(turma)
+
+
+@bp.delete("/turmas/<int:id>")
+@login_required
+@role_required("admin")
+def delete_turma(id):
+
+    sucesso = excluir_turma(id)
+
+    if not sucesso:
+        return _erro("Turma não encontrada", 404)
+
+    return fk.jsonify({
+        "mensagem": "Turma excluída"
+    })
+
+
+# ==================================================
+# ÁREA DO PROFESSOR
+# ==================================================
+#
+# Todas as rotas abaixo usam session["usuario_id"] — nunca um id vindo
+# do corpo da requisição — para descobrir de qual professor se trata.
+# AcessoNegadoError sempre vira 403, sem detalhar o motivo ao cliente.
+
+professor_bp = fk.Blueprint("professor_api", __name__, url_prefix="/api/professor")
+
+
+@professor_bp.get("/dashboard")
+@login_required
+@role_required("professor")
+def dashboard_professor():
+
+    try:
+        return fk.jsonify(
+            obter_dashboard_professor(session["usuario_id"])
+        )
+
+    except AcessoNegadoError:
+        return _erro("Acesso negado.", 403)
+
+
+@professor_bp.get("/turmas")
+@login_required
+@role_required("professor")
+def minhas_turmas():
+
+    try:
+        return fk.jsonify(
+            listar_turmas_professor(session["usuario_id"])
+        )
+
+    except AcessoNegadoError:
+        return _erro("Acesso negado.", 403)
+
+
+@professor_bp.get("/turmas/<int:id_turma>")
+@login_required
+@role_required("professor")
+def detalhe_turma(id_turma):
+
+    try:
+        return fk.jsonify(
+            obter_turma_detalhe(session["usuario_id"], id_turma)
+        )
+
+    except AcessoNegadoError:
+        return _erro("Acesso negado.", 403)
+
+
+@professor_bp.post("/notas")
+@login_required
+@role_required("professor")
+def lancar_nota():
+
+    dados = fk.request.get_json(silent=True) or {}
+
+    try:
+        return fk.jsonify(
+            cadastrar_nota_professor(session["usuario_id"], dados)
+        ), 201
+
+    except AcessoNegadoError:
+        return _erro("Acesso negado.", 403)
+
+    except ValueError as exc:
+        return _erro(str(exc))
+
+    except IntegrityError:
+        return _erro("Erro ao lançar nota.", 409)
+
+
+@professor_bp.post("/presencas")
+@login_required
+@role_required("professor")
+def lancar_presencas():
+
+    dados = fk.request.get_json(silent=True) or {}
+
+    try:
+        return fk.jsonify(
+            registrar_presencas_turma(session["usuario_id"], dados)
+        ), 201
+
+    except AcessoNegadoError:
+        return _erro("Acesso negado.", 403)
+
+    except ValueError as exc:
+        return _erro(str(exc))
+
+    except IntegrityError:
+        return _erro("Erro ao registrar presença.", 409)
+
+
+@professor_bp.get("/turmas/<int:id_turma>/alunos/<int:id_aluno>/notas")
+@login_required
+@role_required("professor")
+def historico_notas(id_turma, id_aluno):
+
+    try:
+        return fk.jsonify(
+            historico_notas_aluno(session["usuario_id"], id_turma, id_aluno)
+        )
+
+    except AcessoNegadoError:
+        return _erro("Acesso negado.", 403)
+
+
+@professor_bp.get("/turmas/<int:id_turma>/alunos/<int:id_aluno>/presencas")
+@login_required
+@role_required("professor")
+def historico_presencas(id_turma, id_aluno):
+
+    try:
+        return fk.jsonify(
+            historico_presencas_aluno(session["usuario_id"], id_turma, id_aluno)
+        )
+
+    except AcessoNegadoError:
+        return _erro("Acesso negado.", 403)
+
+
 # ==================================================
 # PAGINAS
 # ==================================================
@@ -781,4 +979,3 @@ def cadastro():
 def recuperar_senha():
 
     return "Página de recuperação de senha em desenvolvimento"
-

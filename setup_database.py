@@ -30,7 +30,7 @@ def populate_database():
     tipo="admin"
     )
 
-    professor = Usuario(
+    professor_usuario = Usuario(
     nome="Professor",
     email="prof@gmail.com",
     senha=generate_password_hash("123"),
@@ -46,10 +46,12 @@ def populate_database():
 
     session.add_all([
     admin,
-    professor,
+    professor_usuario,
     aluno
 ])
-    
+
+    session.flush()
+
     try:
 
         # ==================================================
@@ -63,6 +65,10 @@ def populate_database():
                 nome="Maria Silva",
                 email="maria@escola.example",
                 disciplina="Matemática",
+                # Vinculado ao usuário de login "Professor" (prof@gmail.com),
+                # para que o login de demonstração acesse a Área do Professor
+                # já com turmas, alunos e histórico populados.
+                id_usuario=professor_usuario.id,
             ),
             models.Professor(
                 nome="João Santos",
@@ -137,6 +143,42 @@ def populate_database():
 
         session.add_all(disciplinas)
         session.flush() 
+
+        # ==================================================
+        # TURMAS
+        # ==================================================
+
+        print("Inserindo turmas...")
+
+        turmas = [
+            models.Turma(
+                nome_turma="Álgebra - Manhã 2026/1",
+                turno="Manhã",
+                ano_letivo="2026/1",
+                id_curso=cursos[0].id_curso,
+                id_disciplina=disciplinas[0].id_disciplina,
+                id_professor=professores[0].id,
+            ),
+            models.Turma(
+                nome_turma="Mecânica - Tarde 2026/1",
+                turno="Tarde",
+                ano_letivo="2026/1",
+                id_curso=cursos[1].id_curso,
+                id_disciplina=disciplinas[1].id_disciplina,
+                id_professor=professores[2].id,
+            ),
+            models.Turma(
+                nome_turma="Gramática - Noite 2026/1",
+                turno="Noite",
+                ano_letivo="2026/1",
+                id_curso=cursos[2].id_curso,
+                id_disciplina=disciplinas[2].id_disciplina,
+                id_professor=professores[1].id,
+            ),
+        ]
+
+        session.add_all(turmas)
+        session.flush()
         
         # ==================================================
         # ALUNOS
@@ -190,12 +232,14 @@ def populate_database():
                 situacao="Ativa",
                 id_aluno=alunos[0].id,
                 id_curso=cursos[0].id_curso,
+                id_turma=turmas[0].id_turma,
             ),
             models.Matricula(
                 data_matricula="2026-01-12",
                 situacao="Ativa",
                 id_aluno=alunos[2].id,
                 id_curso=cursos[1].id_curso,
+                id_turma=turmas[1].id_turma,
             ),
         ]
 
@@ -286,12 +330,16 @@ def populate_database():
                 tipo_avaliacao="Prova",
                 id_aluno=alunos[0].id,
                 id_disciplina=disciplinas[0].id_disciplina,
+                id_professor=professores[0].id,
+                id_turma=turmas[0].id_turma,
             ),
             models.Nota(
                 nota=8,
                 tipo_avaliacao="Trabalho",
                 id_aluno=alunos[2].id,
                 id_disciplina=disciplinas[1].id_disciplina,
+                id_professor=professores[2].id,
+                id_turma=turmas[1].id_turma,
             ),
         ]
 
@@ -307,16 +355,22 @@ def populate_database():
             models.Presenca(
                 data_aula="2026-03-01",
                 presente="S",
+                periodo="Manhã - 1º período",
                 id_matricula=matriculas[0].id_matricula,
                 id_aluno=alunos[0].id,
                 id_disciplina=disciplinas[0].id_disciplina,
+                id_professor=professores[0].id,
+                id_turma=turmas[0].id_turma,
             ),
             models.Presenca(
                 data_aula="2026-03-02",
                 presente="N",
+                periodo="Tarde - 1º período",
                 id_matricula=matriculas[1].id_matricula,
                 id_aluno=alunos[2].id,
                 id_disciplina=disciplinas[1].id_disciplina,
+                id_professor=professores[2].id,
+                id_turma=turmas[1].id_turma,
             ),
         ]
 
@@ -385,10 +439,15 @@ def populate_database():
             select(func.count()).select_from(models.Disciplina)
         )
 
+        nt = session.scalar(
+            select(func.count()).select_from(models.Turma)
+        )
+
         print(f"Professores : {np}")
         print(f"Alunos      : {na}")
         print(f"Cursos      : {nc}")
         print(f"Disciplinas : {nd}")
+        print(f"Turmas      : {nt}")
 
         print("=" * 50)
 

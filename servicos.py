@@ -11,6 +11,7 @@ from models import (
     Aluno,
     Curso,
     Disciplina,
+    Turma,
     Matricula,
     Nota,
     Presenca,
@@ -107,6 +108,13 @@ def listar_enderecos():
     )
 
 
+def listar_turmas():
+    return listar_generico(
+        Turma,
+        Turma.nome_turma
+    )
+
+
 # ==================================================
 # SALVAR
 # ==================================================
@@ -181,6 +189,31 @@ def validar_texto(valor, campo):
     if not valor or not str(valor).strip():
         raise ValueError(
             f"{campo} é obrigatório."
+        )
+
+
+PERIODOS_VALIDOS = {
+    "Manhã - 1º período", "Manhã - 2º período", "Manhã - 3º período",
+    "Tarde - 1º período", "Tarde - 2º período", "Tarde - 3º período",
+    "Noite - 1º período", "Noite - 2º período", "Noite - 3º período",
+}
+
+SITUACOES_PRESENCA_VALIDAS = {"P", "F", "A", "J"}
+
+
+def validar_periodo(periodo):
+
+    if periodo not in PERIODOS_VALIDOS:
+        raise ValueError(
+            "Período inválido. Selecione um turno e período válidos."
+        )
+
+
+def validar_situacao_presenca(situacao):
+
+    if situacao not in SITUACOES_PRESENCA_VALIDAS:
+        raise ValueError(
+            "Situação inválida. Use Presente, Ausente, Atestado ou Justificado."
         )
 
 
@@ -342,6 +375,16 @@ def cadastrar_endereco(dados):
     )
 
     return salvar(Endereco, dados)
+
+
+def cadastrar_turma(dados):
+
+    validar_texto(
+        dados.get("nome_turma"),
+        "Turma"
+    )
+
+    return salvar(Turma, dados)
 
 
 # ==================================================
@@ -658,3 +701,416 @@ def atualizar_endereco(id_obj, dados):
 
 def excluir_endereco(id_obj):
     return excluir(Endereco, id_obj)
+
+
+# ==================================================
+# TURMAS (cadastro administrativo simples)
+# ==================================================
+
+def atualizar_turma(id_obj, dados):
+
+    if "nome_turma" in dados:
+        validar_texto(
+            dados["nome_turma"],
+            "Turma"
+        )
+
+    return atualizar(Turma, id_obj, dados)
+
+
+def excluir_turma(id_obj):
+    return excluir(Turma, id_obj)
+
+
+# ==================================================
+# ÁREA DO PROFESSOR
+# ==================================================
+#
+# Todas as funções abaixo resolvem o Professor a partir do id_usuario
+# da sessão logada — nunca a partir de um id vindo do cliente. Isso
+# garante que um professor nunca acesse dados de outro.
+
+class AcessoNegadoError(Exception):
+    """Levantada quando um professor tenta acessar um recurso que não é seu."""
+    pass
+
+
+def _media_aluno(notas):
+
+    notas_validas = [n.nota for n in notas if n.nota is not None]
+
+    if not notas_validas:
+        return None
+
+    return round(sum(notas_validas) / len(notas_validas), 1)
+
+
+def _frequencia_aluno(presencas):
+
+    if not presencas:
+        return None
+
+    total = len(presencas)
+    presentes = len([p for p in presencas if p.presente == "P"])
+
+    return round((presentes / total) * 100, 1)
+
+
+def _obter_professor_por_usuario(session, id_usuario):
+
+    professor = session.scalar(
+        select(Professor).where(Professor.id_usuario == id_usuario)
+    )
+
+    if not professor:
+        raise AcessoNegadoError(
+            "Nenhum professor vinculado a este usuário."
+        )
+
+    return professor
+
+
+def _validar_turma_do_professor(session, id_usuario, id_turma):
+
+    professor = _obter_professor_por_usuario(session, id_usuario)
+
+    turma = session.get(Turma, id_turma)
+
+    if not turma or turma.id_professor != professor.id:
+        raise AcessoNegadoError(
+            "Esta turma não pertence a este professor."
+        )
+
+    return professor, turma
+
+
+def _validar_aluno_na_turma(session, turma, id_aluno):
+
+    matricula = session.scalar(
+        select(Matricula).where(
+            Matricula.id_turma == turma.id_turma,
+            Matricula.id_aluno == id_aluno,
+        )
+    )
+
+    if not matricula:
+        raise AcessoNegadoError(
+            "Este aluno não está matriculado nesta turma."
+        )
+
+    return matricula
+
+
+def obter_dashboard_professor(id_usuario):
+
+    session = SessionLocal()
+
+    try:
+        professor = session.scalar(
+            select(Professor)
+            .options(
+                selectinload(Professor.turmas).selectinload(Turma.matriculas),
+                selectinload(Professor.disciplinas),
+                selectinload(Professor.cursos),
+            )
+            .where(Professor.id_usuario == id_usuario)
+        )
+
+        if not professor:
+            raise AcessoNegadoError(
+                "Nenhum professor vinculado a este usuário."
+            )
+
+        resumo_turmas = [
+            {
+                "id_turma": turma.id_turma,
+                "nome_turma": turma.nome_turma,
+                "disciplina": turma.disciplina.nome_disciplina if turma.disciplina else "—",
+                "curso": turma.curso.nome_curso if turma.curso else "—",
+                "quantidade_alunos": len(turma.matriculas),
+            }
+            for turma in professor.turmas
+        ]
+
+        return {
+            "nome": professor.nome,
+            "quantidade_disciplinas": len(professor.disciplinas),
+            "quantidade_cursos": len(professor.cursos),
+            "quantidade_turmas": len(resumo_turmas),
+            "total_alunos": sum(item["quantidade_alunos"] for item in resumo_turmas),
+            "turmas": resumo_turmas,
+        }
+
+    finally:
+        session.close()
+
+
+def listar_turmas_professor(id_usuario):
+
+    session = SessionLocal()
+
+    try:
+        professor = _obter_professor_por_usuario(session, id_usuario)
+
+        turmas = session.scalars(
+            select(Turma)
+            .options(selectinload(Turma.matriculas))
+            .where(Turma.id_professor == professor.id)
+            .order_by(Turma.nome_turma)
+        ).unique().all()
+
+        return [turma.to_dict() for turma in turmas]
+
+    finally:
+        session.close()
+
+
+def obter_turma_detalhe(id_usuario, id_turma):
+
+    session = SessionLocal()
+
+    try:
+        professor, turma = _validar_turma_do_professor(session, id_usuario, id_turma)
+
+        turma = session.scalar(
+            select(Turma)
+            .options(
+                selectinload(Turma.matriculas)
+                .selectinload(Matricula.aluno)
+                .selectinload(Aluno.notas),
+                selectinload(Turma.matriculas)
+                .selectinload(Matricula.aluno)
+                .selectinload(Aluno.presencas),
+                selectinload(Turma.curso),
+                selectinload(Turma.disciplina),
+            )
+            .where(Turma.id_turma == id_turma)
+        )
+
+        alunos = []
+
+        for matricula in turma.matriculas:
+
+            aluno = matricula.aluno
+
+            if not aluno:
+                continue
+
+            notas_disciplina = [
+                n for n in aluno.notas
+                if n.id_disciplina == turma.id_disciplina
+            ]
+
+            presencas_disciplina = [
+                p for p in aluno.presencas
+                if p.id_disciplina == turma.id_disciplina
+            ]
+
+            alunos.append({
+                "id_aluno": aluno.id,
+                "nome": aluno.nome,
+                "situacao": matricula.situacao or "—",
+                "media_atual": _media_aluno(notas_disciplina),
+                "frequencia": _frequencia_aluno(presencas_disciplina),
+            })
+
+        return {
+            "id_turma": turma.id_turma,
+            "nome_turma": turma.nome_turma,
+            "turno": turma.turno,
+            "ano_letivo": turma.ano_letivo,
+            "curso": turma.curso.nome_curso if turma.curso else "—",
+            "disciplina": turma.disciplina.nome_disciplina if turma.disciplina else "—",
+            "alunos": alunos,
+        }
+
+    finally:
+        session.close()
+
+
+def cadastrar_nota_professor(id_usuario, dados):
+
+    id_turma = dados.get("id_turma")
+    id_aluno = dados.get("id_aluno")
+
+    validar_nota(dados.get("nota"))
+    validar_texto(dados.get("tipo_avaliacao"), "Avaliação")
+
+    session = SessionLocal()
+
+    try:
+        professor, turma = _validar_turma_do_professor(session, id_usuario, id_turma)
+
+        _validar_aluno_na_turma(session, turma, id_aluno)
+
+        nota = Nota(
+            nota=dados.get("nota"),
+            tipo_avaliacao=dados.get("tipo_avaliacao"),
+            observacoes=dados.get("observacoes"),
+            id_aluno=id_aluno,
+            id_disciplina=turma.id_disciplina,
+            id_professor=professor.id,
+            id_turma=turma.id_turma,
+        )
+
+        session.add(nota)
+
+        session.commit()
+
+        session.refresh(nota)
+
+        return nota.to_dict()
+
+    except Exception as e:
+        session.rollback()
+        raise e
+
+    finally:
+        session.close()
+
+
+def registrar_presencas_turma(id_usuario, dados):
+    """
+    Registra presença de uma turma inteira em uma aula.
+
+    dados esperado:
+    {
+        "id_turma": 1,
+        "data_aula": "2026-07-22",
+        "periodo": "Manhã - 1º período",
+        "presencas": [
+            {"id_aluno": 1, "situacao": "P"},
+            {"id_aluno": 2, "situacao": "F"},
+        ]
+    }
+    """
+
+    id_turma = dados.get("id_turma")
+
+    validar_data(dados.get("data_aula"))
+    validar_periodo(dados.get("periodo"))
+
+    lista_presencas = dados.get("presencas") or []
+
+    if not lista_presencas:
+        raise ValueError(
+            "Informe ao menos um aluno para registrar presença."
+        )
+
+    for item in lista_presencas:
+        validar_situacao_presenca(item.get("situacao"))
+
+    session = SessionLocal()
+
+    try:
+        professor, turma = _validar_turma_do_professor(session, id_usuario, id_turma)
+
+        registros_criados = []
+
+        for item in lista_presencas:
+
+            id_aluno = item.get("id_aluno")
+
+            matricula = _validar_aluno_na_turma(session, turma, id_aluno)
+
+            presenca = Presenca(
+                data_aula=dados.get("data_aula"),
+                presente=item.get("situacao"),
+                periodo=dados.get("periodo"),
+                id_matricula=matricula.id_matricula,
+                id_aluno=id_aluno,
+                id_disciplina=turma.id_disciplina,
+                id_professor=professor.id,
+                id_turma=turma.id_turma,
+            )
+
+            session.add(presenca)
+            registros_criados.append(presenca)
+
+        session.commit()
+
+        for presenca in registros_criados:
+            session.refresh(presenca)
+
+        return [presenca.to_dict() for presenca in registros_criados]
+
+    except Exception as e:
+        session.rollback()
+        raise e
+
+    finally:
+        session.close()
+
+
+def historico_notas_aluno(id_usuario, id_turma, id_aluno):
+
+    session = SessionLocal()
+
+    try:
+        professor, turma = _validar_turma_do_professor(session, id_usuario, id_turma)
+
+        _validar_aluno_na_turma(session, turma, id_aluno)
+
+        notas = session.scalars(
+            select(Nota)
+            .where(
+                Nota.id_aluno == id_aluno,
+                Nota.id_disciplina == turma.id_disciplina,
+            )
+            .order_by(Nota.id_nota)
+        ).all()
+
+        return {
+            "media": _media_aluno(notas),
+            "notas": [
+                {
+                    "id_nota": n.id_nota,
+                    "tipo_avaliacao": n.tipo_avaliacao,
+                    "nota": n.nota,
+                    "observacoes": n.observacoes,
+                }
+                for n in notas
+            ],
+        }
+
+    finally:
+        session.close()
+
+
+def historico_presencas_aluno(id_usuario, id_turma, id_aluno):
+
+    session = SessionLocal()
+
+    try:
+        professor, turma = _validar_turma_do_professor(session, id_usuario, id_turma)
+
+        _validar_aluno_na_turma(session, turma, id_aluno)
+
+        presencas = session.scalars(
+            select(Presenca)
+            .where(
+                Presenca.id_aluno == id_aluno,
+                Presenca.id_disciplina == turma.id_disciplina,
+            )
+            .order_by(Presenca.data_aula)
+        ).all()
+
+        total_presencas = len([p for p in presencas if p.presente == "P"])
+        total_faltas = len([p for p in presencas if p.presente == "F"])
+
+        return {
+            "percentual_frequencia": _frequencia_aluno(presencas),
+            "total_presencas": total_presencas,
+            "total_faltas": total_faltas,
+            "registros": [
+                {
+                    "data_aula": p.data_aula,
+                    "periodo": p.periodo,
+                    "status": p.presente,
+                }
+                for p in presencas
+            ],
+        }
+
+    finally:
+        session.close()

@@ -14,9 +14,10 @@ def create_app():
 
     app.secret_key = "senac_secret_key"
 
-    from app.routes import bp as api_bp, paginas as paginas_bp
+    from app.routes import bp as api_bp, paginas as paginas_bp, professor_bp
 
     app.register_blueprint(api_bp)
     app.register_blueprint(paginas_bp)
+    app.register_blueprint(professor_bp)
 
     return app

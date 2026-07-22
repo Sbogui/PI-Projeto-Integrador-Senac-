@@ -3,8 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Professor</title>
+    <title>Área do Professor</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='professor.css') }}">
@@ -13,42 +14,257 @@
 <body>
 
 <header>
+    <h1>Painel do Professor</h1>
 
-    <h1>Painel Professor</h1>
-
-    <a href="/logout">
+    <a href="{{ url_for('paginas.logout') }}">
         Sair
     </a>
-
 </header>
 
-<div class="container">
+<div id="toast" class="toast"></div>
 
-    <h2>
-        Bem-vindo {{ session['usuario'] }}
-    </h2>
+<main class="container">
 
-    <div class="cards">
+    <!-- ===================================== -->
+    <!-- DASHBOARD -->
+    <!-- ===================================== -->
 
-        <div class="card">
-            <h2>Notas</h2>
-            <p>Lançamento de notas dos alunos</p>
+    <section id="secao-dashboard">
+
+        <h2 id="saudacao">Bem-vindo(a)</h2>
+
+        <div id="resumo-cards" class="cards resumo">
+            <div class="card resumo-card">
+                <span class="resumo-numero" id="resumo-turmas">—</span>
+                <span class="resumo-rotulo">Turmas</span>
+            </div>
+            <div class="card resumo-card">
+                <span class="resumo-numero" id="resumo-disciplinas">—</span>
+                <span class="resumo-rotulo">Disciplinas</span>
+            </div>
+            <div class="card resumo-card">
+                <span class="resumo-numero" id="resumo-cursos">—</span>
+                <span class="resumo-rotulo">Cursos</span>
+            </div>
+            <div class="card resumo-card">
+                <span class="resumo-numero" id="resumo-alunos">—</span>
+                <span class="resumo-rotulo">Alunos</span>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>Presenças</h2>
-            <p>Controle de frequência</p>
+    </section>
+
+    <!-- ===================================== -->
+    <!-- MINHAS TURMAS -->
+    <!-- ===================================== -->
+
+    <section id="secao-turmas">
+
+        <div class="cabecalho-secao">
+            <h2>Minhas Turmas</h2>
+            <button id="botao-recarregar-turmas" class="botao-secundario" type="button">
+                Recarregar
+            </button>
         </div>
 
-        <div class="card">
-            <h2>Turmas</h2>
-            <p>Visualização das turmas</p>
+        <div id="status-turmas" class="status"></div>
+
+        <div id="grade-turmas" class="cards"></div>
+
+    </section>
+
+    <!-- ===================================== -->
+    <!-- DETALHE DA TURMA -->
+    <!-- ===================================== -->
+
+    <section id="secao-detalhe-turma" class="oculto">
+
+        <button id="botao-voltar" class="botao-secundario" type="button">
+            ← Voltar para Minhas Turmas
+        </button>
+
+        <div class="cabecalho-turma">
+            <div>
+                <h2 id="detalhe-nome-turma">Turma</h2>
+                <p id="detalhe-info-turma" class="subinfo"></p>
+            </div>
+
+            <button id="botao-abrir-presenca" class="botao-primario" type="button">
+                Registrar Presença da Turma
+            </button>
+        </div>
+
+        <div id="status-detalhe" class="status"></div>
+
+        <div class="tabela-container">
+            <table id="tabela-alunos">
+                <thead>
+                    <tr>
+                        <th>Aluno</th>
+                        <th>Situação</th>
+                        <th>Média Atual</th>
+                        <th>Frequência</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-alunos"></tbody>
+            </table>
+        </div>
+
+    </section>
+
+</main>
+
+<!-- ===================================== -->
+<!-- MODAL: NOVA NOTA -->
+<!-- ===================================== -->
+
+<div id="modal-nota" class="modal-overlay oculto">
+    <div class="modal">
+
+        <div class="modal-cabecalho">
+            <h3>Lançar Nota</h3>
+            <button class="modal-fechar" data-fechar="modal-nota" type="button">&times;</button>
+        </div>
+
+        <p class="modal-subinfo">
+            Aluno: <strong id="nota-nome-aluno"></strong>
+        </p>
+
+        <form id="form-nota">
+
+            <div class="campo">
+                <label for="nota-avaliacao">Avaliação *</label>
+                <input type="text" id="nota-avaliacao" required
+                       placeholder="Ex: Prova 1, Trabalho, Recuperação">
+            </div>
+
+            <div class="campo">
+                <label for="nota-valor">Nota (0 a 10) *</label>
+                <input type="number" id="nota-valor" min="0" max="10" step="0.1" required>
+            </div>
+
+            <div class="campo">
+                <label for="nota-observacoes">Observações</label>
+                <input type="text" id="nota-observacoes" placeholder="Opcional">
+            </div>
+
+            <div class="acoes-modal">
+                <button type="submit" class="botao-primario">Salvar Nota</button>
+                <span id="mensagem-nota" class="mensagem"></span>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- ===================================== -->
+<!-- MODAL: REGISTRAR PRESENÇA DA TURMA -->
+<!-- ===================================== -->
+
+<div id="modal-presenca" class="modal-overlay oculto">
+    <div class="modal modal-largo">
+
+        <div class="modal-cabecalho">
+            <h3>Registrar Presença</h3>
+            <button class="modal-fechar" data-fechar="modal-presenca" type="button">&times;</button>
+        </div>
+
+        <form id="form-presenca">
+
+            <div class="grade-campos">
+
+                <div class="campo">
+                    <label for="presenca-data">Data da Aula *</label>
+                    <input type="date" id="presenca-data" required>
+                </div>
+
+                <div class="campo">
+                    <label for="presenca-periodo">Período *</label>
+                    <select id="presenca-periodo" required>
+                        <option value="">Selecione...</option>
+                        <optgroup label="Manhã">
+                            <option value="Manhã - 1º período">1º período</option>
+                            <option value="Manhã - 2º período">2º período</option>
+                            <option value="Manhã - 3º período">3º período</option>
+                        </optgroup>
+                        <optgroup label="Tarde">
+                            <option value="Tarde - 1º período">1º período</option>
+                            <option value="Tarde - 2º período">2º período</option>
+                            <option value="Tarde - 3º período">3º período</option>
+                        </optgroup>
+                        <optgroup label="Noite">
+                            <option value="Noite - 1º período">1º período</option>
+                            <option value="Noite - 2º período">2º período</option>
+                            <option value="Noite - 3º período">3º período</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+            </div>
+
+            <div id="lista-presenca-alunos" class="lista-presenca"></div>
+
+            <div class="acoes-modal">
+                <button type="submit" class="botao-primario">Salvar Presença</button>
+                <span id="mensagem-presenca" class="mensagem"></span>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- ===================================== -->
+<!-- MODAL: HISTÓRICO DO ALUNO -->
+<!-- ===================================== -->
+
+<div id="modal-historico" class="modal-overlay oculto">
+    <div class="modal modal-largo">
+
+        <div class="modal-cabecalho">
+            <h3>Histórico de <span id="historico-nome-aluno"></span></h3>
+            <button class="modal-fechar" data-fechar="modal-historico" type="button">&times;</button>
+        </div>
+
+        <div class="abas-historico">
+            <button class="aba-historico ativa" data-aba="notas" type="button">Notas</button>
+            <button class="aba-historico" data-aba="presencas" type="button">Presenças</button>
+        </div>
+
+        <div id="historico-notas" class="painel-historico">
+            <p class="subinfo">Média geral: <strong id="historico-media">—</strong></p>
+            <div class="tabela-container">
+                <table>
+                    <thead>
+                        <tr><th>Avaliação</th><th>Nota</th><th>Observações</th></tr>
+                    </thead>
+                    <tbody id="corpo-historico-notas"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="historico-presencas" class="painel-historico oculto">
+            <p class="subinfo">
+                Frequência: <strong id="historico-frequencia">—</strong> ·
+                Presenças: <strong id="historico-total-presencas">—</strong> ·
+                Faltas: <strong id="historico-total-faltas">—</strong>
+            </p>
+            <div class="tabela-container">
+                <table>
+                    <thead>
+                        <tr><th>Data</th><th>Período</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="corpo-historico-presencas"></tbody>
+                </table>
+            </div>
         </div>
 
     </div>
-
 </div>
 
-</body>
+<script src="{{ url_for('static', filename='professor.js') }}"></script>
 
+</body>
 </html>

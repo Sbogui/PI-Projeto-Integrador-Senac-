@@ -35,6 +35,9 @@ class Professor(Base):
     nome = Column(String(120), nullable=False)
     email = Column(String(120), unique=True)
     disciplina = Column(String(100))
+    id_usuario = Column(Integer, ForeignKey("usuarios.id"))
+
+    usuario = relationship("Usuario")
 
     telefones = relationship(
         "Telefone",
@@ -65,7 +68,14 @@ class Professor(Base):
     "Curso",
     back_populates="professor"
 )
-    
+
+    turmas = relationship(
+        "Turma",
+        back_populates="professor",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -167,6 +177,13 @@ class Curso(Base):
         passive_deletes=True
     )
 
+    turmas = relationship(
+        "Turma",
+        back_populates="curso",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+
     def to_dict(self):
         return {
             "id_curso": self.id_curso,
@@ -219,6 +236,13 @@ class Disciplina(Base):
         cascade="all, delete-orphan",
         passive_deletes=True
     )
+
+    turmas = relationship(
+        "Turma",
+        back_populates="disciplina",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
    
 
     def to_dict(self):
@@ -236,6 +260,65 @@ class Disciplina(Base):
                 self.professor.nome
                 if self.professor else "—"
             ),
+        }
+
+
+class Turma(Base):
+    """
+    Representa uma turma: um agrupamento concreto de alunos cursando
+    uma Disciplina, dentro de um Curso, com um Professor responsável,
+    em um turno/ano letivo específico.
+
+    Existe para permitir saber "quais alunos estão nesta disciplina
+    com este professor", algo que Curso/Disciplina sozinhos não
+    respondiam (Matricula ligava aluno apenas ao Curso inteiro).
+    """
+    __tablename__ = "turmas"
+    __table_args__ = {"sqlite_autoincrement": True}
+
+    id_turma = Column(Integer, primary_key=True, autoincrement=True)
+    nome_turma = Column(String(80), nullable=False)
+    turno = Column(String(10))          # Manhã | Tarde | Noite
+    ano_letivo = Column(String(9))       # ex: "2026/1"
+
+    id_curso = Column(Integer, ForeignKey("cursos.id_curso", ondelete="CASCADE"))
+    id_disciplina = Column(Integer, ForeignKey("disciplinas.id_disciplina", ondelete="CASCADE"))
+    id_professor = Column(Integer, ForeignKey("professores.id", ondelete="CASCADE"))
+
+    curso = relationship("Curso", back_populates="turmas")
+    disciplina = relationship("Disciplina", back_populates="turmas")
+    professor = relationship("Professor", back_populates="turmas")
+
+    matriculas = relationship(
+        "Matricula",
+        back_populates="turma",
+        passive_deletes=True
+    )
+    notas = relationship(
+        "Nota",
+        back_populates="turma",
+        passive_deletes=True
+    )
+    presencas = relationship(
+        "Presenca",
+        back_populates="turma",
+        passive_deletes=True
+    )
+
+    def to_dict(self):
+        alunos_matriculados = [
+            m.aluno for m in self.matriculas if m.aluno
+        ]
+
+        return {
+            "id_turma": self.id_turma,
+            "nome_turma": self.nome_turma,
+            "turno": self.turno,
+            "ano_letivo": self.ano_letivo,
+            "curso": self.curso.nome_curso if self.curso else "—",
+            "disciplina": self.disciplina.nome_disciplina if self.disciplina else "—",
+            "professor": self.professor.nome if self.professor else "—",
+            "quantidade_alunos": len(alunos_matriculados),
         }
 
 
@@ -310,6 +393,7 @@ class Matricula(Base):
 
     id_aluno = Column(Integer, ForeignKey("alunos.id",ondelete="CASCADE"))
     id_curso = Column(Integer, ForeignKey("cursos.id_curso",ondelete="CASCADE"))
+    id_turma = Column(Integer, ForeignKey("turmas.id_turma", ondelete="SET NULL"), nullable=True)
     
     aluno = relationship(
         "Aluno",
@@ -319,6 +403,12 @@ class Matricula(Base):
 
     curso = relationship(
         "Curso",
+        back_populates="matriculas",
+        passive_deletes=True
+    )
+
+    turma = relationship(
+        "Turma",
         back_populates="matriculas",
         passive_deletes=True
     )
@@ -356,9 +446,12 @@ class Nota(Base):
     id_nota = Column(Integer, primary_key=True, autoincrement=True)
     nota = Column(Integer)
     tipo_avaliacao = Column(String(50))
+    observacoes = Column(String(255))
 
     id_aluno = Column(Integer, ForeignKey("alunos.id",ondelete="CASCADE"))
     id_disciplina = Column(Integer, ForeignKey("disciplinas.id_disciplina",ondelete="CASCADE"))
+    id_professor = Column(Integer, ForeignKey("professores.id", ondelete="SET NULL"), nullable=True)
+    id_turma = Column(Integer, ForeignKey("turmas.id_turma", ondelete="SET NULL"), nullable=True)
     
     aluno = relationship(
         "Aluno",
@@ -371,6 +464,9 @@ class Nota(Base):
         back_populates="notas",
         passive_deletes=True
     )
+
+    professor = relationship("Professor", passive_deletes=True)
+    turma = relationship("Turma", back_populates="notas", passive_deletes=True)
     
 
     def to_dict(self):
@@ -378,6 +474,7 @@ class Nota(Base):
             "id_nota": self.id_nota,
             "nota": self.nota,
             "tipo_avaliacao": self.tipo_avaliacao,
+            "observacoes": self.observacoes,
 
             "aluno": (
                 self.aluno.nome
@@ -399,10 +496,13 @@ class Presenca(Base):
     id_presenca = Column(Integer, primary_key=True, autoincrement=True)
     data_aula = Column(String(12))
     presente = Column(String(1))
+    periodo = Column(String(30))  # ex: "Manhã - 1º período"
 
     id_matricula = Column(Integer, ForeignKey("matricula.id_matricula",ondelete="CASCADE"))
     id_aluno = Column(Integer, ForeignKey("alunos.id",ondelete="CASCADE"))
     id_disciplina = Column(Integer, ForeignKey("disciplinas.id_disciplina",ondelete="CASCADE"))
+    id_professor = Column(Integer, ForeignKey("professores.id", ondelete="SET NULL"), nullable=True)
+    id_turma = Column(Integer, ForeignKey("turmas.id_turma", ondelete="SET NULL"), nullable=True)
     
     aluno = relationship(
         "Aluno",
@@ -422,6 +522,9 @@ class Presenca(Base):
         passive_deletes=True
     )
 
+    professor = relationship("Professor", passive_deletes=True)
+    turma = relationship("Turma", back_populates="presencas", passive_deletes=True)
+
    
 
     def to_dict(self):
@@ -429,6 +532,7 @@ class Presenca(Base):
             "id_presenca": self.id_presenca,
             "data_aula": self.data_aula,
             "presente": self.presente,
+            "periodo": self.periodo,
 
             "aluno": (
                 self.aluno.nome
