@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Sistema Escolar</title>
 
   <link
     rel="stylesheet"
     href="{{ url_for('static', filename='styles.css') }}"
-  />
+  >
 </head>
 
 <body>
@@ -21,103 +26,158 @@
     </div>
 
     <div class="topo-usuario">
-      <span class="selo" aria-hidden="true">CF</span>
-      <span class="boas-vindas">Bem-vindo, {{ session['usuario'] }}</span>
-      <a href="/logout" class="sair">Sair</a>
+
+      <span
+        class="selo"
+        aria-hidden="true"
+      >
+        CF
+      </span>
+
+      <span class="boas-vindas">
+        Bem-vindo, {{ session['usuario'] }}
+      </span>
+
+      <a
+        href="{{ url_for('paginas.logout') }}"
+        class="sair"
+      >
+        Sair
+      </a>
+
     </div>
 
   </header>
 
-  <!-- ===================================== -->
-  <!-- ABAS -->
-  <!-- ===================================== -->
+  <nav
+    class="abas"
+    aria-label="Áreas do sistema"
+  >
 
-  <nav class="abas">
-
-    <button class="aba ativa" data-tipo="professores">
+    <button
+      class="aba ativa"
+      type="button"
+      data-tipo="professores"
+    >
       Professores
     </button>
 
-    <button class="aba" data-tipo="alunos">
+    <button
+      class="aba"
+      type="button"
+      data-tipo="alunos"
+    >
       Alunos
     </button>
 
-    <button class="aba" data-tipo="cursos">
+    <button
+      class="aba"
+      type="button"
+      data-tipo="cursos"
+    >
       Cursos
     </button>
 
-    <button class="aba" data-tipo="disciplinas">
+    <button
+      class="aba"
+      type="button"
+      data-tipo="disciplinas"
+    >
       Disciplinas
     </button>
 
-    <button class="aba" data-tipo="matriculas">
+    <button
+      class="aba"
+      type="button"
+      data-tipo="matriculas"
+    >
       Matrículas
     </button>
 
-    <button class="aba" data-tipo="notas">
+    <button
+      class="aba"
+      type="button"
+      data-tipo="notas"
+    >
       Notas
     </button>
 
-    <button class="aba" data-tipo="presencas">
+    <button
+      class="aba"
+      type="button"
+      data-tipo="presencas"
+    >
       Presenças
     </button>
 
-    <button class="aba" data-tipo="telefones">
+    <button
+      class="aba"
+      type="button"
+      data-tipo="telefones"
+    >
       Telefones
     </button>
 
-    <button class="aba" data-tipo="emails">
+    <button
+      class="aba"
+      type="button"
+      data-tipo="emails"
+    >
       Emails
     </button>
 
-    <button class="aba" data-tipo="enderecos">
+    <button
+      class="aba"
+      type="button"
+      data-tipo="enderecos"
+    >
       Endereços
     </button>
 
   </nav>
 
-  <!-- ===================================== -->
-  <!-- CONTEÚDO -->
-  <!-- ===================================== -->
-
   <main class="conteudo">
 
-    <!-- FORMULÁRIO -->
     <section id="painel-formulario">
 
       <h2 id="titulo-formulario">
         Novo Registro
       </h2>
 
-      <form id="formulario" novalidate>
+      <form id="formulario">
 
         <div
           id="campos"
-          class="grade-campos">
-        </div>
+          class="grade-campos"
+        ></div>
 
         <div class="acoes-formulario">
 
           <button
             type="submit"
-            class="botao-primario">
-
+            class="botao-primario"
+          >
             Cadastrar
-
           </button>
 
           <span
             id="mensagem-formulario"
-            class="mensagem">
-          </span>
+            class="mensagem"
+            aria-live="polite"
+          ></span>
 
         </div>
 
       </form>
 
+      <noscript>
+        <p class="mensagem erro">
+          Este sistema precisa do JavaScript ativado para funcionar.
+        </p>
+      </noscript>
+
     </section>
 
-    <!-- TABELA -->
     <section id="painel-tabela">
 
       <div class="cabecalho-painel">
@@ -128,15 +188,18 @@
 
         <button
           id="botao-recarregar"
-          type="button">
-
+          type="button"
+        >
           Recarregar
-
         </button>
 
       </div>
 
-      <div id="status" class="status"></div>
+      <div
+        id="status"
+        class="status"
+        aria-live="polite"
+      ></div>
 
       <div class="tabela-container">
 
@@ -156,13 +219,9 @@
 
   </main>
 
-  <!-- ===================================== -->
-  <!-- JS -->
-  <!-- ===================================== -->
-
   <script
-    src="{{ url_for('static', filename='app.js') }}">
-  </script>
+    src="{{ url_for('static', filename='app.js') }}"
+  ></script>
 
 </body>
 </html>
