@@ -1,58 +1,93 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
+<<<<<<< HEAD
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+=======
+>>>>>>> 384e40115263a1f3ea3c588bbb44dbf55c085c70
 
-    <title>Aluno</title>
+  <meta charset="UTF-8">
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='aluno.css') }}">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Área do Aluno</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='aluno.css') }}"
+  >
+
 </head>
 
 <body>
 
-<header>
+  <header>
 
     <h1>Área do Aluno</h1>
 
     <div class="usuario_area">
-       <p class="p1">Bem-vindo, {{ session['usuario'] }}</p>
-  
 
-    <a href="{{ url_for('paginas.logout') }}">
+      <p class="p1">
+        Bem-vindo, {{ session['usuario'] }}
+      </p>
+
+      <a href="{{ url_for('paginas.logout') }}">
         Sair
-    </a>
+      </a>
+
     </div>
 
-</header>
+  </header>
 
-<div class="container">
+  <main class="container">
 
     <h2>
       Painel do Aluno
     </h2>
 
-    <div class="cards">
+    <section
+      class="cards"
+      aria-label="Resumo do aluno"
+    >
 
-        <div class="card">
-            <h2>Notas</h2>
-            <p>Visualizar notas</p>
-        </div>
+      <article class="card">
 
-        <div class="card">
-            <h2>Frequência</h2>
-            <p>Visualizar presença</p>
-        </div>
+        <h2>Notas</h2>
 
-        <div class="card">
-            <h2>Matrícula</h2>
-            <p>Dados da matrícula</p>
-        </div>
+        <p>
+          Visualizar notas
+        </p>
 
-    </div>
+      </article>
 
-</div>
+      <article class="card">
+
+        <h2>Frequência</h2>
+
+        <p>
+          Visualizar presença
+        </p>
+
+      </article>
+
+      <article class="card">
+
+        <h2>Matrícula</h2>
+
+        <p>
+          Dados da matrícula
+        </p>
+
+      </article>
+
+    </section>
+
+  </main>
 
 </body>
 </html>

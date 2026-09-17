@@ -1,94 +1,143 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
+<<<<<<< HEAD
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+=======
+>>>>>>> 384e40115263a1f3ea3c588bbb44dbf55c085c70
 
-    <title>Login</title>
+  <meta charset="UTF-8">
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='login.css') }}">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Login</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='login.css') }}"
+  >
+
 </head>
 
 <body>
 
-<div class="login-box">
+  <main class="login-box">
 
     <h1>Projeto Integrador</h1>
 
     {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="erro">
-                {{ messages[0] }}
-            </div>
-        {% endif %}
+
+      {% if messages %}
+
+        <div
+          class="erro"
+          role="alert"
+        >
+          {{ messages[0] }}
+        </div>
+
+      {% endif %}
+
     {% endwith %}
 
     <form method="POST">
 
+      <label
+        class="campo-oculto"
+        for="email"
+      >
+        E-mail
+      </label>
+
+      <input
+        type="email"
+        name="email"
+        id="email"
+        placeholder="Digite seu email"
+        autocomplete="email"
+        required
+      >
+
+      <div class="senha-box">
+
+        <label
+          class="campo-oculto"
+          for="senha"
+        >
+          Senha
+        </label>
+
         <input
-            type="email"
-            name="email"
-            placeholder="Digite seu email"
-            required
+          type="password"
+          name="senha"
+          id="senha"
+          placeholder="Digite sua senha"
+          autocomplete="current-password"
+          required
         >
 
-        <div class="senha-box">
-
-            <input
-                type="password"
-                name="senha"
-                id="senha"
-                placeholder="Digite sua senha"
-                required
-            >
-
-            <span onclick="mostrarSenha()">
-                👁
-            </span>
-
-        </div>
-
-        <button type="submit">
-            Entrar
+        <button
+          type="button"
+          class="botao-senha"
+          onclick="mostrarSenha()"
+          aria-label="Mostrar ou ocultar senha"
+          aria-controls="senha"
+        >
+          👁
         </button>
+
+      </div>
+
+      <button type="submit">
+        Entrar
+      </button>
 
     </form>
 
     <div class="links">
-        
-        <p align="right"><a href="{{ url_for('paginas.recuperar_senha') }}">
-    Esqueci minha senha
-</a></p>
 
-<br>
-     
-        <p>
-            Não possui conta?
-            <a href="{{ url_for('paginas.cadastro') }}">
-                <br><br>
-                Criar conta
-            </a>
-        </p>
+      <p>
+
+        <a href="{{ url_for('paginas.recuperar_senha') }}">
+          Esqueci minha senha
+        </a>
+
+      </p>
+
+      <p>
+
+        Não possui conta?
+
+        <a href="{{ url_for('paginas.cadastro') }}">
+          Criar conta
+        </a>
+
+      </p>
 
     </div>
 
-</div>
+  </main>
 
-<script>
+  <script>
 
-function mostrarSenha() {
+    function mostrarSenha() {
 
-    const campo = document.getElementById("senha")
+      const campo =
+        document.getElementById("senha");
 
-    if (campo.type === "password") {
-        campo.type = "text"
-    } else {
-        campo.type = "password"
+      campo.type =
+        campo.type === "password"
+          ? "text"
+          : "password";
+
     }
-}
 
-</script>
+  </script>
 
 </body>
 </html>
