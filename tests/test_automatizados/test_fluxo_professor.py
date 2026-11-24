@@ -70,6 +70,18 @@ def cenario_professor():
         "id_aluno": aluno.id,
     }
 
+    # Guarda os IDs antes do close(): depois dele os objetos ficam
+    # desanexados e ler atributos levanta DetachedInstanceError.
+    limpeza = [
+        (Matricula, matricula.id_matricula),
+        (Turma, turma.id_turma),
+        (Disciplina, disciplina.id_disciplina),
+        (Curso, curso.id_curso),
+        (Aluno, aluno.id),
+        (Professor, professor.id),
+        (Usuario, usuario.id),
+    ]
+
     session.close()
 
     yield ids
@@ -77,15 +89,7 @@ def cenario_professor():
     # ===== Limpeza (ordem respeitando as dependências) =====
     session = SessionLocal()
     try:
-        for modelo, id_obj in [
-            (Matricula, matricula.id_matricula),
-            (Turma, turma.id_turma),
-            (Disciplina, disciplina.id_disciplina),
-            (Curso, curso.id_curso),
-            (Aluno, aluno.id),
-            (Professor, professor.id),
-            (Usuario, usuario.id),
-        ]:
+        for modelo, id_obj in limpeza:
             obj = session.get(modelo, id_obj)
             if obj:
                 session.delete(obj)

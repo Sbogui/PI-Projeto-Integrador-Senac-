@@ -43,19 +43,19 @@ class Professor(Base):
         "Telefone",
         cascade="all, delete-orphan",
         back_populates="professor",
-         passive_deletes=True
+        passive_deletes=True
     )
     emails = relationship(
         "Email",
         cascade="all, delete-orphan",
         back_populates="professor",
-         passive_deletes=True
+        passive_deletes=True
     )
     enderecos = relationship(
         "Endereco",
         cascade="all, delete-orphan",
         back_populates="professor",
-         passive_deletes=True
+        passive_deletes=True
     )
     disciplinas = relationship(
         "Disciplina",
@@ -106,7 +106,7 @@ class Aluno(Base):
         "Telefone",
         cascade="all, delete-orphan",
         back_populates="aluno",
-         passive_deletes=True
+        passive_deletes=True
     )
     emails = relationship(
         "Email",
@@ -118,7 +118,7 @@ class Aluno(Base):
         "Endereco",
         cascade="all, delete-orphan",
         back_populates="aluno",
-         passive_deletes=True
+        passive_deletes=True
     )
     matriculas = relationship(
         "Matricula",
@@ -189,6 +189,7 @@ class Curso(Base):
             "id_curso": self.id_curso,
             "nome_curso": self.nome_curso,
             "carga_horaria": self.carga_horaria,
+            "id_professor": self.id_professor,
 
             "professor": (
                 self.professor.nome
@@ -243,13 +244,15 @@ class Disciplina(Base):
         cascade="all, delete-orphan",
         passive_deletes=True
     )
-   
+
 
     def to_dict(self):
         return {
             "id_disciplina": self.id_disciplina,
             "nome_disciplina": self.nome_disciplina,
             "carga_horaria": self.carga_horaria,
+            "id_curso": self.id_curso,
+            "id_professor": self.id_professor,
 
             "curso": (
                 self.curso.nome_curso
@@ -425,6 +428,8 @@ class Matricula(Base):
             "id_matricula": self.id_matricula,
             "data_matricula": self.data_matricula,
             "situacao": self.situacao,
+            "id_aluno": self.id_aluno,
+            "id_curso": self.id_curso,
 
             "aluno": (
                 self.aluno.nome
@@ -475,6 +480,8 @@ class Nota(Base):
             "nota": self.nota,
             "tipo_avaliacao": self.tipo_avaliacao,
             "observacoes": self.observacoes,
+            "id_aluno": self.id_aluno,
+            "id_disciplina": self.id_disciplina,
 
             "aluno": (
                 self.aluno.nome
@@ -525,7 +532,7 @@ class Presenca(Base):
     professor = relationship("Professor", passive_deletes=True)
     turma = relationship("Turma", back_populates="presencas", passive_deletes=True)
 
-   
+
 
     def to_dict(self):
         return {
@@ -533,6 +540,8 @@ class Presenca(Base):
             "data_aula": self.data_aula,
             "presente": self.presente,
             "periodo": self.periodo,
+            "id_aluno": self.id_aluno,
+            "id_disciplina": self.id_disciplina,
 
             "aluno": (
                 self.aluno.nome

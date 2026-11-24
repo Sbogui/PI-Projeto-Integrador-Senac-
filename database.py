@@ -11,7 +11,7 @@ from config import INSTANCE_DIR
 os.makedirs(INSTANCE_DIR, exist_ok=True)
 
 _db_path = os.path.join(INSTANCE_DIR, "app.db").replace("\\", "/")
-DATABASE_URL = f"sqlite:///{_db_path}"
+DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite:///{_db_path}")
 
 engine = create_engine(
     DATABASE_URL,

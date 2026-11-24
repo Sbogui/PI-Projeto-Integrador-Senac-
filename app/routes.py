@@ -821,8 +821,13 @@ paginas = fk.Blueprint("paginas", __name__)
 @login_required
 def home():
 
-    if "usuario" not in session:
-        return redirect(url_for("paginas.login"))
+    tipo = session.get("tipo")
+
+    if tipo == "professor":
+        return redirect(url_for("paginas.professor"))
+
+    if tipo == "aluno":
+        return redirect(url_for("paginas.aluno"))
 
     return render_template("index.html")
 

@@ -13,7 +13,6 @@ const COLUNAS = {
     { chave: "nome", titulo: "Nome" },
     { chave: "email", titulo: "E-mail" },
     { chave: "telefone", titulo: "Telefone" },
-    { chave: "curso", titulo: "Curso" }
   ],
 
   cursos: [
@@ -145,7 +144,6 @@ const CAMPOS = {
     { nome: "nome", rotulo: "Nome", obrigatorio: true },
     { nome: "email", rotulo: "E-mail", tipo: "email" },
     { nome: "telefone", rotulo: "Telefone" },
-    { nome: "curso_id", rotulo: "Curso", tipo: "select", origem: "cursos", obrigatorio: true},
   ],
 
   cursos: [
@@ -203,6 +201,7 @@ const CAMPOS = {
     {
       nome: "data_matricula",
       rotulo: "Data Matrícula",
+      tipo: "date",
       obrigatorio: true
     },
 
@@ -263,6 +262,7 @@ const CAMPOS = {
     {
       nome: "data_aula",
       rotulo: "Data Aula",
+      tipo: "date",
       obrigatorio: true
     },
 
@@ -351,7 +351,8 @@ async function buscar(tipo) {
   const resposta = await fetch(`/api/${tipo}`);
 
   if (!resposta.ok) {
-    throw new Error(`HTTP ${resposta.status}`);
+    const corpo = await resposta.json().catch(() => ({}));
+    throw new Error(corpo.erro || `HTTP ${resposta.status}`);
   }
 
   return resposta.json();
